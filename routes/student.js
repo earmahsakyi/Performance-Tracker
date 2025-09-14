@@ -10,7 +10,19 @@ const {
   deleteStudent,
   getStudentByUserId,
   addPerformanceScore,
-  updateCourseProgress
+  updateCourseProgress,
+  submitAssignment,
+  getStudentAssignments,
+  submitQuiz,
+  markModuleComplete,
+  getCourseProgressDetails,
+  addNote,
+  updateNote,
+  deleteNote,
+  getNotes,
+  getNoteById,
+  getStudentStats,
+  getWeeklyActivity,
 } = require('../controllers/studentController');
 
 // @route   POST /api/student
@@ -94,5 +106,66 @@ router.post('/:id/performance', auth, addPerformanceScore);
 // @desc    Update course progress
 // @access  Private
 router.put('/:id/progress/:courseId', auth, updateCourseProgress);
+
+// @route   POST /api/student/:id/assignments
+// @desc    Submit assignment
+// @access  Private
+router.post('/:id/assignments', auth, submitAssignment);
+
+// @route   GET /api/student/:id/assignments/:courseId
+// @desc    Get student assignments for a course
+// @access  Private
+router.get('/:id/assignments/:courseId', auth, getStudentAssignments);
+
+// @route   POST /api/student/:id/quizzes
+// @desc    Submit quiz/assessment
+// @access  Private
+router.post('/:id/quizzes', auth, submitQuiz);
+
+// @route   PUT /api/student/:id/modules/complete
+// @desc    Mark module as completed
+// @access  Private
+router.put('/:id/modules/complete', auth, markModuleComplete);
+
+// @route   GET /api/student/:id/progress/:courseId/details
+// @desc    Get detailed course progress
+// @access  Private
+router.get('/:id/progress/:courseId/details', auth, getCourseProgressDetails);
+
+// @route   POST /api/student/:id/notes
+// @desc    Add a new note
+// @access  Private
+router.post('/:id/notes', auth, addNote);
+
+// @route   PUT /api/student/:id/notes/:noteId
+// @desc    Update a note
+// @access  Private
+router.put('/:id/notes/:noteId', auth, updateNote);
+
+// @route   DELETE /api/student/:id/notes/:noteId
+// @desc    Delete a note
+// @access  Private
+router.delete('/:id/notes/:noteId', auth, deleteNote);
+
+// @route   GET /api/student/:id/notes
+// @desc    Get all notes for a student
+// @access  Private
+router.get('/:id/notes', auth, getNotes);
+
+// @route   GET /api/student/:id/notes/:noteId
+// @desc    Get a single note
+// @access  Private
+router.get('/:id/notes/:noteId', auth, getNoteById);
+
+// @route   GET /api/student/:id/stats
+// @desc    Get comprehensive student statistics
+// @access  Private
+router.get('/:id/stats', auth, getStudentStats);
+
+// @route   GET /api/student/:id/activity/weekly  
+// @desc    Get weekly activity data
+// @access  Private
+router.get('/:id/activity/weekly', auth, getWeeklyActivity);
+
 
 module.exports = router;

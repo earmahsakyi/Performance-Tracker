@@ -36,8 +36,10 @@ const Login = () => {
       
       if (result?.success) {
        if (result.role === 'Student') {
-    navigate(result.profileUpdated ? '/student-dashboard' : '/complete-student-profile');
+        toast.success('Login successful');
+        navigate(result.profileUpdated ? '/student-dashboard' : '/complete-student-profile');
   } else if (result.role === 'Admin') {
+    toast.success('Login successful');
     navigate(result.profileUpdated ? '/Admin-dashboard' : '/complete-Admin-profile');
   }
         

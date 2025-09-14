@@ -27,7 +27,28 @@ import {
   CLEAR_STUDENT_ERRORS,
   SET_CURRENT_STUDENT,
   CLEAR_CURRENT_STUDENT,
-  RESET_STUDENT_STATE
+  RESET_STUDENT_STATE,
+  SUBMIT_ASSIGNMENT_REQUEST,
+  SUBMIT_ASSIGNMENT_SUCCESS,
+  SUBMIT_ASSIGNMENT_FAIL,
+  GET_ASSIGNMENTS_REQUEST,
+  GET_ASSIGNMENTS_SUCCESS,
+  GET_ASSIGNMENTS_FAIL,
+  SUBMIT_QUIZ_REQUEST,
+  SUBMIT_QUIZ_SUCCESS,
+  SUBMIT_QUIZ_FAIL,
+  MARK_MODULE_COMPLETE_REQUEST,
+  MARK_MODULE_COMPLETE_SUCCESS,
+  MARK_MODULE_COMPLETE_FAIL,
+  GET_PROGRESS_DETAILS_REQUEST,
+  GET_PROGRESS_DETAILS_SUCCESS,
+  GET_PROGRESS_DETAILS_FAIL,
+  GET_WEEKLY_ACTIVITY_FAIL,
+  GET_WEEKLY_ACTIVITY_SUCCESS,
+  GET_WEEKLY_ACTIVITY_REQUEST,
+  GET_STUDENT_STATS_REQUEST,
+  GET_STUDENT_STATS_SUCCESS,
+  GET_STUDENT_STATS_FAIL,
 } from './types.js';
 
 // Helper function to get auth config
@@ -272,6 +293,180 @@ export const updateCourseProgress = (studentId, courseId, progressData, token) =
       payload: error.response?.data?.message || error.message
     });
     throw error;
+  }
+};
+
+export const submitAssignment = (studentId, assignmentData, token) => async (dispatch) => {
+  try {
+    dispatch({ type: SUBMIT_ASSIGNMENT_REQUEST });
+
+    const config = getConfig(token);
+    const res = await axios.post(
+      `/api/student/${studentId}/assignments`, 
+      assignmentData, 
+      config
+    );
+
+    dispatch({
+      type: SUBMIT_ASSIGNMENT_SUCCESS,
+      payload: { studentId, assignment: res.data.data }
+    });
+
+    return res.data;
+  } catch (error) {
+    dispatch({
+      type: SUBMIT_ASSIGNMENT_FAIL,
+      payload: error.response?.data?.message || error.message
+    });
+    throw error;
+  }
+};
+
+// Get student assignments for a course
+export const getStudentAssignments = (studentId, courseId, token) => async (dispatch) => {
+  try {
+    dispatch({ type: GET_ASSIGNMENTS_REQUEST });
+
+    const config = getConfig(token);
+    const res = await axios.get(
+      `/api/student/${studentId}/assignments/${courseId}`, 
+      config
+    );
+
+    dispatch({
+      type: GET_ASSIGNMENTS_SUCCESS,
+      payload: { studentId, courseId, assignments: res.data.data }
+    });
+
+    return res.data.data;
+  } catch (error) {
+    dispatch({
+      type: GET_ASSIGNMENTS_FAIL,
+      payload: error.response?.data?.message || error.message
+    });
+  }
+};
+
+// Submit quiz/assessment
+export const submitQuiz = (studentId, quizData, token) => async (dispatch) => {
+  try {
+    dispatch({ type: SUBMIT_QUIZ_REQUEST });
+
+    const config = getConfig(token);
+    const res = await axios.post(
+      `/api/student/${studentId}/quizzes`, 
+      quizData, 
+      config
+    );
+
+    dispatch({
+      type: SUBMIT_QUIZ_SUCCESS,
+      payload: { studentId, quiz: res.data.data }
+    });
+
+    return res.data;
+  } catch (error) {
+    dispatch({
+      type: SUBMIT_QUIZ_FAIL,
+      payload: error.response?.data?.message || error.message
+    });
+    throw error;
+  }
+};
+
+// Mark module as completed
+export const markModuleComplete = (studentId, courseId, moduleIndex, token) => async (dispatch) => {
+  try {
+    dispatch({ type: MARK_MODULE_COMPLETE_REQUEST });
+
+    const config = getConfig(token);
+    const res = await axios.put(
+      `/api/student/${studentId}/modules/complete`, 
+      { courseId, moduleIndex },
+      config
+    );
+
+    dispatch({
+      type: MARK_MODULE_COMPLETE_SUCCESS,
+      payload: { studentId, courseId, moduleIndex, progress: res.data.data }
+    });
+
+    return res.data;
+  } catch (error) {
+    dispatch({
+      type: MARK_MODULE_COMPLETE_FAIL,
+      payload: error.response?.data?.message || error.message
+    });
+    throw error;
+  }
+};
+
+// Get detailed course progress
+export const getCourseProgressDetails = (studentId, courseId, token) => async (dispatch) => {
+  try {
+    dispatch({ type: GET_PROGRESS_DETAILS_REQUEST });
+
+    const config = getConfig(token);
+    const res = await axios.get(
+      `/api/student/${studentId}/progress/${courseId}/details`, 
+      config
+    );
+
+    dispatch({
+      type: GET_PROGRESS_DETAILS_SUCCESS,
+      payload: { studentId, courseId, details: res.data.data }
+    });
+
+    return res.data.data;
+  } catch (error) {
+    dispatch({
+      type: GET_PROGRESS_DETAILS_FAIL,
+      payload: error.response?.data?.message || error.message
+    });
+  }
+};
+
+
+export const getStudentStats = (studentId, token) => async (dispatch) => {
+  try {
+    dispatch({ type: GET_STUDENT_STATS_REQUEST });
+
+    const config = getConfig(token);
+    const res = await axios.get(`/api/student/${studentId}/stats`, config);
+
+    dispatch({
+      type: GET_STUDENT_STATS_SUCCESS,
+      payload: res.data.data
+    });
+
+    return res.data.data;
+  } catch (error) {
+    dispatch({
+      type: GET_STUDENT_STATS_FAIL,
+      payload: error.response?.data?.message || error.message
+    });
+  }
+};
+
+// Get weekly activity data (add this new one)
+export const getWeeklyActivity = (studentId, token) => async (dispatch) => {
+  try {
+    dispatch({ type: GET_WEEKLY_ACTIVITY_REQUEST });
+
+    const config = getConfig(token);
+    const res = await axios.get(`/api/student/${studentId}/activity/weekly`, config);
+
+    dispatch({
+      type: GET_WEEKLY_ACTIVITY_SUCCESS,
+      payload: res.data.data
+    });
+
+    return res.data.data;
+  } catch (error) {
+    dispatch({
+      type: GET_WEEKLY_ACTIVITY_FAIL,
+      payload: error.response?.data?.message || error.message
+    });
   }
 };
 

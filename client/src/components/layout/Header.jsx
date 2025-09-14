@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Home, Menu, X } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import logo from '../../assets/tracademy logo.png'
 
 const Header = () => {
   const navigate = useNavigate()
@@ -12,9 +13,12 @@ const Header = () => {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <div className="flex items-center space-x-2">
-            <Home className="h-8 w-8 text-primary" />
-            <span className="text-xl font-bold font-poppins text-foreground">Trackademy</span>
+          <div className="flex items-center space-x-2 mt-4">
+            <a href="/">  
+               <img src={logo} alt="Logo" className="h-60 w-60" />
+            </a>
+         
+            {/* <span className="text-lg font-bold text-foreground">Tracademy</span> */}
           </div>
 
           {/* Desktop CTA Buttons */}

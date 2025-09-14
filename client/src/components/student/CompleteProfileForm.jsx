@@ -90,7 +90,7 @@ const StudentProfileForm = () => {
     await dispatch(loadUser());
     
     setTimeout(() => {
-      navigate('/');
+      navigate('/student-dashboard');
     }, 1000);
 
   } catch (error) {

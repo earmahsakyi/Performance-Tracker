@@ -9,8 +9,17 @@ import Login from './components/auth/Login';
 import VerifyEmail from './components/auth/VerifyEmail';
 import ForgotPassword from './components/auth/ForgotPassword';
 import ResetPassword from './components/auth/ResetPassword';
+import Courses from './components/dashboard/student/Courses';
+import CourseLearning from './components/dashboard/student/CourseLearning';
+import Notes from './components/dashboard/student/Notes';
+import Progress from './components/dashboard/student/Progress';
+import Forum from './components/dashboard/student/Forum';
+import Groups from './components/dashboard/student/Group';
+import PostView from './components/dashboard/student/PostView';
+import CategoryPosts from './components/dashboard/student/CategoryPost'; 
 // import ChatDashboard from './components/pages/ChatDashboard';
 import PrivateRoute from './components/routing/PrivateRoute';
+import DashboardOverview from './components/dashboard/student/DashboardOverview';
 import CompleteProfileForm from './components/student/CompleteProfileForm';
 import { loadUser } from './actions/authAction'; 
 
@@ -33,6 +42,15 @@ const AppInner = () => {
        <Route path="/forgot-password" element={<ForgotPassword/>} />
        <Route path="/reset-password" element={<ResetPassword/>} />
       <Route path="/complete-student-profile" element={<PrivateRoute element={CompleteProfileForm}/>} /> 
+      <Route path="/student-dashboard" element={<PrivateRoute element={DashboardOverview}/>} /> 
+      <Route path="/courses" element={<PrivateRoute element={Courses}/>} /> 
+      <Route path="/student/courses/:courseId/learn" element={<PrivateRoute element={CourseLearning}/>} /> 
+      <Route path="/student/notes" element={<PrivateRoute element={Notes}/>} /> 
+      <Route path="/student/progress" element={<PrivateRoute element={Progress}/>} /> 
+      <Route path="/student/forum" element={<PrivateRoute element={Forum}/>} /> 
+      <Route path="/student/groups" element={<PrivateRoute element={Groups}/>} /> 
+      <Route path="/forum/post/:postId" element={<PrivateRoute element={PostView}/>} /> 
+      <Route path="/forum/category/:categoryId" element={<PrivateRoute element={CategoryPosts}/>} /> 
    
     </Routes>
   );
@@ -40,7 +58,9 @@ const AppInner = () => {
 
 const App = () => {
   return (
+
     <Provider store={Store}>
+
    
         <AppInner />
     <Toaster position="top-right"
@@ -63,6 +83,7 @@ const App = () => {
   }}
 
     /> 
+  
     </Provider>
   );
 };

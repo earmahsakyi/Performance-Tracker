@@ -1,11 +1,12 @@
 import { Star } from "lucide-react";
+import myPic from '../../assets/WhatsApp Image 2025-05-09 at 13.48.02_611f26e5.jpg'
 
 const testimonials = [
   {
-    name: "Sarah Chen",
+    name: "BurnaBoy",
     role: "Frontend Developer at Google",
-    content: "SkillForge transformed my career! The hands-on projects and mentorship helped me land my dream job. The progress tracking kept me motivated throughout.",
-    avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=64&h=64&fit=crop&crop=face",
+    content: "Trackademy has transformed my career! The hands-on projects and mentorship helped me land my dream job. The progress tracking kept me motivated throughout.",
+    avatar: myPic,
     rating: 5
   },
   {

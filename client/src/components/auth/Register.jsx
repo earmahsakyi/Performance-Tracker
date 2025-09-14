@@ -83,7 +83,6 @@ const Register = () => {
     setTimeout( async() => {
         const results = await dispatch(verifyEmail(email))
         if (results?.success){
-            toast.success(results.message)
             navigate('/verify-email')
         }
     }, 1000);

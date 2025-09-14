@@ -16,7 +16,10 @@ const courseSchema = new mongoose.Schema({
     {
       title: String, // e.g., "React Basics"
       description: String,
-      resources: [String], // e.g., ["link to slides", "link to repo"]
+      resources: [ {
+          type: mongoose.Schema.Types.Mixed, // Allows both String and Object
+          default: []
+        }], 
       assignments: [
         {
           title: String,
@@ -37,10 +40,15 @@ const courseSchema = new mongoose.Schema({
       date: { type: Date, default: Date.now }
     }
   ],
+  rating: { type: Number, default: 0 },
+  price: { type: String, enum: ["Free", "Premium"], default: "Free" },
+  level: { type: String, enum: ["Beginner", "Intermediate", "Advanced"], default: "Beginner" },
+  thumbnail: { type: String, default:"bg-gradient-to-br from-purple-500 to-purple-600" },
 
   tags: [String], // e.g., ["JavaScript", "MongoDB", "Design Thinking"]
 
-  isActive: { type: Boolean, default: true }
+  isActive: { type: Boolean, default: true },
+
 }, { timestamps: true });
 
 module.exports = mongoose.model("Course", courseSchema);

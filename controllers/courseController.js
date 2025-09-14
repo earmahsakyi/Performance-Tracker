@@ -17,6 +17,9 @@ const createCourse = async (req, res) => {
       startDate,
       endDate,
       modules,
+      price,
+      level,
+      thumbnail,
       tags
     } = req.body;
 
@@ -54,6 +57,9 @@ const createCourse = async (req, res) => {
       startDate,
       endDate,
       modules,
+      price,
+      level,
+      thumbnail,
       tags
     });
 
@@ -176,7 +182,11 @@ const updateCourse = async (req, res) => {
       endDate,
       modules,
       tags,
+      price,
+      level,
+      thumbnail,
       isActive,
+      
       announcements
     } = req.body;
 
@@ -216,6 +226,9 @@ const updateCourse = async (req, res) => {
     if (tags) course.tags = tags;
     if (isActive !== undefined) course.isActive = isActive;
     if (announcements) course.announcements = announcements;
+    if (price) course.price = price;
+    if (level) course.level = level;
+    if (thumbnail) course.thumbnail = thumbnail;
 
     const updatedCourse = await course.save();
 
@@ -336,16 +349,23 @@ const enrollStudent = async (req, res) => {
     }
 
     // Add course to student enrollment
-    student.enrolledCourses.push({
+    const newEnrollment = {
       courseId: courseId,
       progress: 0,
-      certificateIssued: false
-    });
-    await student.save();
+      completedModules: [],
+      certificateIssued: false,
+      enrolledDate: new Date()
+    };
+    
+    student.enrolledCourses.push(newEnrollment);
+    const savedStudent = await student.save();
 
-    // Populate the updated data
-    await student.populate('enrolledCourses.courseId', 'title code category');
+    // Instead of trying to find the enrollment after population,
+    // just get the last enrollment which is the one we just added
+    const lastEnrollmentIndex = savedStudent.enrolledCourses.length - 1;
+    const justAddedEnrollment = savedStudent.enrolledCourses[lastEnrollmentIndex];
 
+    // Return response without problematic population
     res.status(200).json({
       success: true,
       message: 'Student enrolled successfully',
@@ -353,20 +373,28 @@ const enrollStudent = async (req, res) => {
         course: {
           id: course._id,
           title: course.title,
-          code: course.code
+          code: course.code,
+          category: course.category
         },
         student: {
           id: student._id,
           name: student.name,
           studentId: student.studentId
         },
-        enrollment: student.enrolledCourses.find(
-          e => e.courseId._id.toString() === courseId
-        )
+        enrollment: {
+          courseId: justAddedEnrollment.courseId,
+          progress: justAddedEnrollment.progress,
+          completedModules: justAddedEnrollment.completedModules,
+          certificateIssued: justAddedEnrollment.certificateIssued,
+          enrolledDate: justAddedEnrollment.enrolledDate,
+          _id: justAddedEnrollment._id
+        }
       }
     });
 
   } catch (error) {
+    console.error('Enrollment error:', error);
+    console.error('Error stack:', error.stack);
     res.status(500).json({
       success: false,
       message: 'Error enrolling student',
@@ -374,6 +402,7 @@ const enrollStudent = async (req, res) => {
     });
   }
 };
+
 
 // @desc    Unenroll student from course
 // @route   DELETE /api/courses/:courseId/unenroll/:studentId

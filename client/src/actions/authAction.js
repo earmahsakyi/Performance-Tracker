@@ -260,7 +260,7 @@ export const resetPassword = (email,token, newPassword) => async (dispatch) => {
 }
 
 export  const logout = () => async (dispatch) => {
-   dispatch(setAuthLoading()); // Use new action creator
+   dispatch(setAuthLoading()); 
   localStorage.removeItem('token');
   localStorage.removeItem('role');
   localStorage.removeItem('email');
