@@ -35,7 +35,7 @@ const Progress = () => {
   const processingRef = useRef(false)
   const initializedRef = useRef(false)
 
-  // FIXED: Store token in ref to prevent recreation on every render
+  // Store token in ref to prevent recreation on every render
   const tokenRef = useRef(null)
   if (!tokenRef.current) {
     tokenRef.current = localStorage.getItem('token')
@@ -67,7 +67,7 @@ const Progress = () => {
     }
   }, [])
 
-  // FIXED: Memoize calculation functions with stable references
+  // Memoize calculation functions with stable references
   const calculateOverallStats = useCallback((student) => {
     if (!student) return []
 

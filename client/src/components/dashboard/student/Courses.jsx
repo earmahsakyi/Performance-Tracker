@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { motion } from "framer-motion"
-import { BookOpen, Play, Clock, Users, Star, Filter, Search, Loader2 } from "lucide-react"
+import { BookOpen, Play, Clock, Users, Star, Filter, Search, Loader2, CheckCircle } from "lucide-react"
 import { DashboardLayout } from "@/components/dashboard/student/DashboardLayout"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"

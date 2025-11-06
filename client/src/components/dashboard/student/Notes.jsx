@@ -123,7 +123,7 @@ const Notes = () => {
       setDeleteDialogOpen(false);
       setNoteToDelete(null);
 
-    }catch(err){
+    }catch(error){
       console.error('Error deleting student:', error);
 
     }finally {
@@ -142,11 +142,20 @@ const Notes = () => {
   }
 
   const noteCategories = [
-    { name: "React Fundamentals", count: notes.filter(n => n.subject === "React Fundamentals").length, color: "bg-blue-500" },
-    { name: "UI/UX Design", count: notes.filter(n => n.subject === "UI/UX Design").length, color: "bg-purple-500" },
-    { name: "JavaScript ES6+", count: notes.filter(n => n.subject === "JavaScript ES6+").length, color: "bg-yellow-500" },
-    { name: "Node.js Backend", count: notes.filter(n => n.subject === "Node.js Backend").length, color: "bg-green-500" },
-  ]
+  { name: "React Fundamentals", count: notes.filter(n => n.subject === "React Fundamentals").length, color: "bg-blue-500" },
+  { name: "UI/UX Design", count: notes.filter(n => n.subject === "UI/UX Design").length, color: "bg-purple-500" },
+  { name: "JavaScript ES6+", count: notes.filter(n => n.subject === "JavaScript ES6+").length, color: "bg-yellow-500" },
+  { name: "Node.js Backend", count: notes.filter(n => n.subject === "Node.js Backend").length, color: "bg-green-500" },
+  { name: "MongoDB Database", count: notes.filter(n => n.subject === "MongoDB Database").length, color: "bg-emerald-500" },
+  { name: "Express.js API", count: notes.filter(n => n.subject === "Express.js API").length, color: "bg-cyan-500" },
+  { name: "HTML & CSS Basics", count: notes.filter(n => n.subject === "HTML & CSS Basics").length, color: "bg-pink-500" },
+  { name: "Tailwind CSS", count: notes.filter(n => n.subject === "Tailwind CSS").length, color: "bg-indigo-500" },
+  { name: "Git & GitHub", count: notes.filter(n => n.subject === "Git & GitHub").length, color: "bg-red-500" },
+  { name: "Deployment & Hosting", count: notes.filter(n => n.subject === "Deployment & Hosting").length, color: "bg-orange-500" },
+  { name: "AWS Cloud Basics", count: notes.filter(n => n.subject === "AWS Cloud Basics").length, color: "bg-teal-500" },
+  { name: "Version Control", count: notes.filter(n => n.subject === "Version Control").length, color: "bg-rose-500" }
+];
+
 
   const formatDate = (dateString) => {
     const date = new Date(dateString)
@@ -217,11 +226,18 @@ const Notes = () => {
                 value={noteForm.title}
                 onChange={(e) => setNoteForm({...noteForm, title: e.target.value})}
               />
-              <Input
-                placeholder="Subject"
-                value={noteForm.subject}
-                onChange={(e) => setNoteForm({...noteForm, subject: e.target.value})}
-              />
+                  <select
+                  value={noteForm.subject}
+                  onChange={(e) => setNoteForm({ ...noteForm, subject: e.target.value })}
+                  className="w-full p-2 border rounded-md bg-muted/50  focus:ring-2 focus:ring-primary focus:outline-none"
+                >
+                  <option value="">Select Subject</option>
+                  {noteCategories.map((category) => (
+                    <option key={category.name} value={category.name}>
+                      {category.name}
+                    </option>
+                  ))}
+                </select>
               <Textarea
                 placeholder="Note Content"
                 value={noteForm.content}

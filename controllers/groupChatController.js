@@ -1,5 +1,5 @@
 const GroupChat = require('../models/GroupChat');
-const StudyGroup = require('../models/StudyGroup');
+const StudyGroup = require('../models/StudyGroup'); 
 
 const groupChatController = {
   // Get group chat messages

@@ -20,8 +20,8 @@ const CreateSessionModal = ({ groupId, open, onClose }) => {
     agenda: []
   })
 
-  const sessionTypes = ['Study Session', 'Workshop', 'Project Work', 'Discussion', 'Review', 'Presentation']
 
+const sessionTypes = ['Study Session', 'Workshop', 'Project Work', 'Discussion', 'Review', 'Presentation']
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
@@ -103,6 +103,67 @@ const CreateSessionModal = ({ groupId, open, onClose }) => {
               />
             </div>
           </div>
+          <div className="space-y-2">
+            <Label htmlFor="type">Session Type</Label>
+            <select
+              id="type"
+              value={formData.type}
+              onChange={(e) => handleChange('type', e.target.value)}
+              className="w-full border rounded p-2"
+            >
+              {sessionTypes.map((t) => (
+                <option key={t} value={t}>{t}</option>
+              ))}
+            </select>
+          </div>
+
+
+          <div className="space-y-2">
+          <Label>Agenda</Label>
+          {formData.agenda.map((item, idx) => (
+            <div key={idx} className="flex gap-2 items-center">
+              <Input
+                placeholder="Agenda item"
+                value={item.item}
+                onChange={(e) => {
+                  const newAgenda = [...formData.agenda]
+                  newAgenda[idx].item = e.target.value
+                  handleChange('agenda', newAgenda)
+                }}
+              />
+              <Input
+                type="number"
+                min="5"
+                placeholder="Minutes"
+                className="w-24"
+                value={item.duration}
+                onChange={(e) => {
+                  const newAgenda = [...formData.agenda]
+                  newAgenda[idx].duration = parseInt(e.target.value)
+                  handleChange('agenda', newAgenda)
+                }}
+              />
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  const newAgenda = formData.agenda.filter((_, i) => i !== idx)
+                  handleChange('agenda', newAgenda)
+                }}
+              >
+                Remove
+              </Button>
+            </div>
+          ))}
+
+          <Button
+            type="button"
+            size="sm"
+            onClick={() => handleChange('agenda', [...formData.agenda, { item: '', duration: 15 }])}
+          >
+            Add Agenda Item
+          </Button>
+        </div>
 
           <div className="space-y-2">
             <Label htmlFor="meetingLink">Meeting Link (optional)</Label>

@@ -38,6 +38,7 @@ const Groups = () => {
     success
   } = useSelector(state => state.studyGroup);
   
+  
 
 
   const [showCreateGroup, setShowCreateGroup] = useState(false)
@@ -76,7 +77,7 @@ const Groups = () => {
   const handleJoinGroup = async (groupId) => {
     try {
       await dispatch(joinGroup(groupId))
-      toast.success('Successfully joined the group!')
+      
     } catch (error) {
       toast.error(error.message || 'Failed to join group')
     }
@@ -86,7 +87,7 @@ const Groups = () => {
     try {
       await dispatch(createGroup(groupData))
       setShowCreateGroup(false)
-      toast.success('Group created successfully!')
+
     } catch (error) {
       toast.error(error.message || 'Failed to create group')
     }
@@ -94,14 +95,12 @@ const Groups = () => {
 
   // Add error logging for debugging
   const handleCreateSession = async (sessionData) => {
-    console.log('Creating session with data:', sessionData)
-    console.log('For group ID:', showCreateSession)
+
     
     try {
-      const result = await dispatch(createSession(showCreateSession, sessionData))
-      console.log('Session creation result:', result)
-      setShowCreateSession(null)
-      toast.success('Session created successfully!')
+       await dispatch(createSession(showCreateSession, sessionData))
+    
+      setShowCreateSession(null);
       
       // Refresh data after successful creation
       dispatch(getMyGroups())
@@ -215,10 +214,10 @@ const Groups = () => {
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: index * 0.1 }}
-                    className="p-4 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors"
+                    className="p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors"
                   >
                     <div className="flex items-start gap-4">
-                      <div className={`p-3 rounded-lg ${getCategoryColor(group.category)} text-white`}>
+                      <div className={`p-2 rounded-lg ${getCategoryColor(group.category)} text-white`}>
                         <Users className="h-5 w-5" />
                       </div>
                       
@@ -279,7 +278,7 @@ const Groups = () => {
                               )}
                             </div>
 
-                            <div className="flex gap-2">
+                            <div className="flex flex-col gap-2 lg:flex-row">
                               <Button 
                                 variant="outline" 
                                 size="sm"

@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
+const Student = require('../models/Student')
 const { upload, uploadToS3 } = require('../middleware/s3Uploader');
 const {
   createStudent,
@@ -151,6 +152,63 @@ router.delete('/:id/notes/:noteId', auth, deleteNote);
 // @desc    Get all notes for a student
 // @access  Private
 router.get('/:id/notes', auth, getNotes);
+
+router.get('/:studentId/certificates', auth, async (req, res) => {
+  try {
+    const { studentId } = req.params;
+    
+    const student = await Student.findById(studentId)
+      .populate('enrolledCourses.courseId');
+    
+    if (!student) {
+      return res.status(404).json({ error: 'Student not found' });
+    }
+
+    const earnedCertificates = [];
+    const upcomingCertificates = [];
+
+    for (const enrollment of student.enrolledCourses) {
+      const course = enrollment.courseId;
+      
+      if (enrollment.progress >= 100) {
+        // Earned certificate
+        const avgScore = student.performanceScores
+          .filter(score => score.courseId.toString() === course._id.toString())
+          .reduce((sum, score, _, arr) => 
+            arr.length > 0 ? sum + (score.score / score.maxScore * 100) / arr.length : 0, 0
+          );
+
+        earnedCertificates.push({
+          title: `${course.title} Completion`,
+          course: course.title,
+          courseId: course._id,
+          issueDate: enrollment.enrolledDate,
+          completionScore: Math.round(avgScore) || 100,
+          credentialId: `CERT-${course.code}-${Date.now()}`,
+          status: "Active",
+          skills: course.tags || [],
+          canDownload: true
+        });
+      } else {
+        // In progress
+        upcomingCertificates.push({
+          title: `${course.title} Completion`,
+          course: course.title,
+          courseId: course._id,
+          progress: enrollment.progress,
+          estimatedCompletion: course.endDate,
+          requirements: ["Complete all modules", "Submit assignments", "Pass assessments"]
+        });
+      }
+    }
+
+    res.json({ earnedCertificates, upcomingCertificates });
+    
+  } catch (error) {
+    console.error('Error fetching certificates:', error);
+    res.status(500).json({ error: 'Failed to fetch certificates' });
+  }
+});
 
 // @route   GET /api/student/:id/notes/:noteId
 // @desc    Get a single note

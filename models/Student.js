@@ -64,6 +64,8 @@ const studentSchema = new mongoose.Schema({
       resourcesViewed: [{ type: String }] // URLs of resources viewed
     }
   ],
+ 
+
 
   badges: [String], 
   attendance: [{ date: Date, sessionId: String }],

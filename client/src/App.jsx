@@ -10,13 +10,21 @@ import VerifyEmail from './components/auth/VerifyEmail';
 import ForgotPassword from './components/auth/ForgotPassword';
 import ResetPassword from './components/auth/ResetPassword';
 import Courses from './components/dashboard/student/Courses';
+import AdminCourses from './components/dashboard/admin/Courses';
 import CourseLearning from './components/dashboard/student/CourseLearning';
 import Notes from './components/dashboard/student/Notes';
 import Progress from './components/dashboard/student/Progress';
 import Forum from './components/dashboard/student/Forum';
 import Groups from './components/dashboard/student/Group';
 import PostView from './components/dashboard/student/PostView';
-import CategoryPosts from './components/dashboard/student/CategoryPost'; 
+import CategoryPosts from './components/dashboard/student/CategoryPost';
+import Certificates from './components/dashboard/student/Certificates'; 
+import AdminProfileForm from './components/auth/AdminProfileForm';
+import Dashboard from './components/dashboard/admin/Dashboard';
+import Users from './components/dashboard/admin/Users';
+import Announcements from './components/dashboard/admin/Announcements';
+import AdminForum from './components/dashboard/admin/Forum';
+import Settings from './components/dashboard/admin/Settings';
 // import ChatDashboard from './components/pages/ChatDashboard';
 import PrivateRoute from './components/routing/PrivateRoute';
 import DashboardOverview from './components/dashboard/student/DashboardOverview';
@@ -51,6 +59,14 @@ const AppInner = () => {
       <Route path="/student/groups" element={<PrivateRoute element={Groups}/>} /> 
       <Route path="/forum/post/:postId" element={<PrivateRoute element={PostView}/>} /> 
       <Route path="/forum/category/:categoryId" element={<PrivateRoute element={CategoryPosts}/>} /> 
+      <Route path="certificates" element={<PrivateRoute element={Certificates}/>} /> 
+      <Route path="/complete-Admin-profile" element={<PrivateRoute element={AdminProfileForm}/>} /> 
+      <Route path="/admin-dashboard" element={<PrivateRoute element={Dashboard}/>} /> 
+      <Route path="/users" element={<PrivateRoute element={Users}/>} /> 
+      <Route path="/admin-courses" element={<PrivateRoute element={AdminCourses}/>} /> 
+      <Route path="/announcements" element={<PrivateRoute element={Announcements}/>} /> 
+      <Route path="/forum" element={<PrivateRoute element={AdminForum}/>} /> 
+      <Route path="/settings" element={<PrivateRoute element={Settings}/>} /> 
    
     </Routes>
   );

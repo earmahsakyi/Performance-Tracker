@@ -40,7 +40,7 @@ const Login = () => {
         navigate(result.profileUpdated ? '/student-dashboard' : '/complete-student-profile');
   } else if (result.role === 'Admin') {
     toast.success('Login successful');
-    navigate(result.profileUpdated ? '/Admin-dashboard' : '/complete-Admin-profile');
+    navigate(result.profileUpdated ? '/admin-dashboard' : '/complete-Admin-profile');
   }
         
 }else if (result?.error) {

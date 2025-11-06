@@ -1,12 +1,10 @@
-import React,{use, useEffect} from "react"
+import React,{ useEffect} from "react"
 import { DashboardLayout } from "@/components/dashboard/student/DashboardLayout"
-import {
-  ProgressOverviewCard,
-  UpcomingDeadlinesCard,
-  QuickAccessCard,
-  AchievementsCard,
-  AnnouncementsCard,
-} from "@/components/dashboard/student/DashboardCard"
+import AnnouncementsCard from "./AnnouncementsCard"
+import { QuickAccessCard } from "./QuickAccessCard"
+import AchievementsCard from "./Achievements"
+import  UpcomingDeadlinesCard  from "./UpcomingDeadlinesCard"
+import ProgressOverviewCard from "./ProgressOverviewCard"
 import { useSelector,useDispatch } from "react-redux"
 import { getStudentByUserId } from "@/actions/studentAction"
 

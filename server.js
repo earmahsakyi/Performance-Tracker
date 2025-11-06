@@ -24,10 +24,14 @@ const server = http.createServer(app);
 //Define Routes 
 app.use('/api/auth',require('./routes/auth'));
 app.use('/api/student',require('./routes/student'));
+app.use('/api/admin', require('./routes/admin'));
 app.use('/api/courses',require('./routes/course'));
 app.use('/api/forum',require('./routes/forum'));
 app.use('/api/admin/forum',require('./routes/adminForum'));
 app.use('/api/study-groups',require('./routes/studyGroup'));
+app.use('/api/certificates',require('./routes/certificate'));
+app.use('/api/announcements',require('./routes/announcement'));
+app.use('/api/deadlines', require('./routes/deadline'));
 
 // Setup Socket.io with authentication
 const io = new Server(server, {

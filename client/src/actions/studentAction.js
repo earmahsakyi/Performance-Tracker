@@ -227,6 +227,7 @@ export const getStudentByUserId = (userId, token) => async (dispatch) => {
 
     const config = getConfig(token);
     const res = await axios.get(`/api/student/user/${userId}`, config);
+    
 
     dispatch({
       type: GET_STUDENT_BY_USER_SUCCESS,
@@ -411,7 +412,8 @@ export const getCourseProgressDetails = (studentId, courseId, token) => async (d
       `/api/student/${studentId}/progress/${courseId}/details`, 
       config
     );
-
+    localStorage.setItem('studentId',studentId)
+    
     dispatch({
       type: GET_PROGRESS_DETAILS_SUCCESS,
       payload: { studentId, courseId, details: res.data.data }

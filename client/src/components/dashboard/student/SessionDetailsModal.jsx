@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle,DialogDescription } fr
 import { Button } from "@/components/ui/button"
 import { Calendar, Users, Clock, Video } from "lucide-react"
 import { useDispatch, useSelector } from 'react-redux'
-import { getSessionDetails, registerForSession, markAttendance } from '../../../actions/groupChatAction'
+import { getSessionDetails, registerForSession, markAttendance,cancelSession } from '../../../actions/groupChatAction'
 
 const SessionDetailsModal = ({ sessionId, open, onClose }) => {
   const dispatch = useDispatch()
@@ -11,6 +11,7 @@ const SessionDetailsModal = ({ sessionId, open, onClose }) => {
   // Use separate useSelector hooks for each state property
   const sessionDetails = useSelector(state => state.studyGroup.sessionDetails[sessionId])
   const loading = useSelector(state => state.studyGroup.loading)
+
 
   useEffect(() => {
     if (open && sessionId) {
@@ -33,6 +34,13 @@ const SessionDetailsModal = ({ sessionId, open, onClose }) => {
       window.open(sessionDetails.meetingLink, '_blank')
     } catch (error) {
       console.error('Failed to join session:', error)
+    }
+  }
+  const handleCancel = async (sectionID) => {
+    try{
+      await dispatch(cancelSession(sectionID))
+    }catch(err){
+      console.error(err)
     }
   }
 
@@ -74,34 +82,51 @@ const SessionDetailsModal = ({ sessionId, open, onClose }) => {
           {sessionDetails.agenda && sessionDetails.agenda.length > 0 && (
             <div>
               <h4 className="font-medium mb-2">Agenda</h4>
-              <ul className="text-sm space-y-1">
-                {sessionDetails.agenda.map((item, index) => (
-                  <li key={index}>• {item}</li>
-                ))}
-              </ul>
+              <ul>
+              {sessionDetails.agenda?.map((agendaItem) => (
+                <li key={agendaItem._id}>
+                  <span>{agendaItem.item}</span> – <span>{agendaItem.duration} min</span>
+                  {agendaItem.completed && <span className="ml-2 text-green-600">(done)</span>}
+                </li>
+              ))}
+            </ul>
             </div>
           )}
 
-          <div className="flex gap-2">
-            {!sessionDetails.userRegistered ? (
-              <Button onClick={handleRegister} disabled={loading.registerSession}>
-                Register for Session
+       <div className="flex gap-2">
+          {!sessionDetails.userRegistered ? (
+            // If NOT registered → show register button
+            <Button onClick={handleRegister} disabled={loading.registerSession}>
+              Register for Session
+            </Button>
+          ) : (
+            
+            <>
+              <Button variant="destructive" onClick={() => handleCancel(sessionId)}>
+                Cancel Registration
               </Button>
-            ) : sessionDetails.status === 'scheduled' ? (
-              <Button variant="outline" disabled>
-                Registered - Waiting for session
-              </Button>
-            ) : sessionDetails.status === 'ongoing' ? (
-              <Button onClick={handleJoin}>
-                <Video className="mr-2 h-4 w-4" />
-                Join Session
-              </Button>
-            ) : (
-              <Button variant="outline" disabled>
-                Session Completed
-              </Button>
-            )}
-          </div>
+
+              {sessionDetails.status === 'scheduled' && (
+                <Button variant="outline" disabled>
+                  Registered - Waiting for session
+                </Button>
+              )}
+
+              {sessionDetails.status === 'ongoing' && (
+                <Button onClick={handleJoin}>
+                  <Video className="mr-2 h-4 w-4" /> Join Session
+                </Button>
+              )}
+
+              {sessionDetails.status === 'completed' && (
+                <Button variant="outline" disabled>
+                  Session Completed
+                </Button>
+              )}
+            </>
+          )}
+        </div>
+
         </div>
       </DialogContent>
     </Dialog>

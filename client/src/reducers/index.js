@@ -8,6 +8,10 @@ import { noteReducer } from "./noteReducer";
 import forumReducer from "./forumReducer";
 import adminForumReducer from "./adminForumReducer";
 import studyGroupReducer from "./studyGroupReducer";
+import certificateReducer from "./certificateReducer";
+import { announcementReducer } from "./announcementReducer";
+import adminReducer from "./adminReducer";
+import { deadlineReducer } from "./deadlineReducer";
 
 
 const appReducer = combineReducers({
@@ -19,7 +23,11 @@ const appReducer = combineReducers({
    note: noteReducer,
    forum: forumReducer,
    adminForum: adminForumReducer,
-   studyGroup: studyGroupReducer
+   studyGroup: studyGroupReducer,
+   certificates: certificateReducer,
+   announcement: announcementReducer,
+   admin: adminReducer,
+   deadline: deadlineReducer,
 });
 
 const rootReducer = (state, action) => {
