@@ -12,7 +12,7 @@ const {
 const getClientIp = require('../middleware/getClientIp');
 
 // Apply IP extraction to all auth routes
-// router.use(getClientIp);
+router.use(getClientIp);
 
 // Get logged in user
 router.get('/', auth, authController.getLoginUser);
@@ -20,7 +20,7 @@ router.get('/', auth, authController.getLoginUser);
 // Login with rate limiting
 router.post(
   '/login',
-  // authLimiter, // 5 attempts per 15 minutes per IP
+  authLimiter, // 5 attempts per 15 minutes per IP
   [
     check('email', 'Please include a valid email').isEmail(),
     check('password', 'Password is required').exists()
@@ -31,7 +31,7 @@ router.post(
 // Register with rate limiting
 router.post(
   '/register',
-  // authLimiter, // 5 attempts per 15 minutes per IP
+  authLimiter, // 5 attempts per 15 minutes per IP
   SecretKey,
   [
     check('email', 'Please enter your email').isEmail(),
@@ -43,7 +43,7 @@ router.post(
 // Forgot password with stricter rate limiting
 router.post(
   '/forgot-password',
-  // passwordResetLimiter, // 3 attempts per hour per IP
+  passwordResetLimiter, // 3 attempts per hour per IP
   [
     body('email').isEmail().withMessage('Invalid Email Format')
   ],
@@ -53,7 +53,7 @@ router.post(
 // Verify email with rate limiting
 router.post(
   '/verify-email',
-  // emailVerificationLimiter, // 5 attempts per hour per IP
+  emailVerificationLimiter, // 5 attempts per hour per IP
   [
     check('email', 'Please include a valid email').isEmail()
   ],
@@ -63,7 +63,7 @@ router.post(
 // Confirm email verification with rate limiting
 router.post(
   '/confirm-email-verification',
-  // emailVerificationLimiter, // 5 attempts per hour per IP
+  emailVerificationLimiter, // 5 attempts per hour per IP
   [
     check('email', 'Please enter a valid email').isEmail(),
     check('code', 'Verification code is required').notEmpty()
@@ -74,7 +74,7 @@ router.post(
 // Reset password with rate limiting
 router.post(
   '/reset-password',
-  // passwordResetLimiter, // 3 attempts per hour per IP
+  passwordResetLimiter, // 3 attempts per hour per IP
   [
     check('password', 'Please enter a password with 8 or more characters').isLength({ min: 8 })
   ],

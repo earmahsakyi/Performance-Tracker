@@ -54,10 +54,10 @@ app.use(cors());
 app.use(express.json({ extended: false }));
 
 // Extract client IP for all routes
-// app.use(getClientIp);
+app.use(getClientIp);
 
-// // Apply general rate limiting to all API routes
-// app.use('/api/', apiLimiter);
+// Apply general rate limiting to all API routes
+app.use('/api/', apiLimiter);
 
 // Root route
 app.get('/', (req, res) => res.json({ msg: 'Welcome to Local Service API...' }));
@@ -75,6 +75,15 @@ app.use('/api/study-groups', require('./routes/studyGroup'));
 app.use('/api/certificates', require('./routes/certificate'));
 app.use('/api/announcements', require('./routes/announcement'));
 app.use('/api/deadlines', require('./routes/deadline'));
+
+// Serve frontend build (important for Railway deployment)
+app.use(express.static(path.join(__dirname, 'client', 'dist')));
+
+// For all other routes (non-API), return React index.html (for React Router)
+app.get(/^(?!\/api).*/, (req, res) => {
+  res.sendFile(path.join(__dirname, 'client', 'dist', 'index.html'));
+});
+
 
 // Setup Socket.io with authentication
 const io = new Server(server, {
