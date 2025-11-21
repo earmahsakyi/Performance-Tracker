@@ -1,15 +1,15 @@
 const Student = require('../models/Student');
 const User = require('../models/User');
 const Course = require('../models/Course');
-const config = require('../config/default.json');
+// const config = require('../config/default.json');
 const generateStudentID = require('../utils/generateStudentId');
 const { DeleteObjectCommand, S3Client } = require('@aws-sdk/client-s3');
 
 const s3 = new S3Client({
-  region: config.AWS_REGION,
+  region: process.env.AWS_REGION,
   credentials: {
-    accessKeyId: config.AWS_ACCESS_KEY_ID,
-    secretAccessKey: config.AWS_SECRET_ACCESS_KEY,
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
   },
 });
 
@@ -233,7 +233,7 @@ const updateStudent = async (req, res) => {
       if (existingStudent?.photo) {
         const oldKey = existingStudent.photo.split('/').pop();
         await s3.send(new DeleteObjectCommand({
-          Bucket: config.AWS_BUCKET_NAME,
+          Bucket: process.env.AWS_BUCKET_NAME,
           Key: oldKey
         }));
       }

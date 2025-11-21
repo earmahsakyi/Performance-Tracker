@@ -1,15 +1,14 @@
 const Admin = require('../models/Admin');
 const User = require('../models/User');
-const config = require('../config/default.json')
+// const config = require('../config/default.json')
 const { DeleteObjectCommand, S3Client } = require('@aws-sdk/client-s3');
 const s3 = new S3Client({
-  region: config.AWS_REGION,
+  region: process.env.AWS_REGION,
   credentials: {
-    accessKeyId: config.AWS_ACCESS_KEY_ID,
-    secretAccessKey: config.AWS_SECRET_ACCESS_KEY,
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
   },
 });
-
 
 // @desc    Create or update admin profile
 // @route   POST /api/admin
@@ -54,7 +53,7 @@ exports.createOrUpdateAdminProfile = async (req, res) => {
   if (existingAdmin?.photo) {
     const oldKey = existingAdmin.photo.split('/').pop();
     await s3.send(new DeleteObjectCommand({
-      Bucket: config.AWS_BUCKET_NAME,
+      Bucket: process.env.AWS_BUCKET_NAME,
       Key: oldKey
     }));
   }
