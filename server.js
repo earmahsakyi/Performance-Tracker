@@ -10,6 +10,8 @@ const StudyGroup = require('./models/StudyGroup');
 const helmet = require('helmet');
 const { apiLimiter } = require('./middleware/rateLimiter');
 const getClientIp = require('./middleware/getClientIp');
+const path = require("path");
+
 
 const app = express();
 
