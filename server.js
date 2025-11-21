@@ -36,7 +36,7 @@ app.use(helmet({
         "https://trackademy.s3.eu-north-1.amazonaws.com/student/",
         "https://trackademy.s3.amazonaws.com",
       ],
-      connectSrc: ["'self'"],
+      connectSrc: ["'self'","ws:", "wss:"],
       fontSrc: ["'self'"],
       objectSrc: ["'none'"],
       mediaSrc: ["'self'"],
