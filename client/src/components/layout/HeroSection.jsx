@@ -2,8 +2,10 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, Play } from "lucide-react";
 import heroStudents from "../../assets/hero2.jpg";
 import {Link} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export const HeroSection = () => {
+  const navigate = useNavigate()
   return (
     <section className="min-h-screen flex items-center justify-center bg-gradient-hero relative overflow-hidden">
       {/* Background decorative elements */}
@@ -28,7 +30,7 @@ export const HeroSection = () => {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-              <Button  className="text-lg px-8 py-4 h-auto
+              <Button onClick={()=>navigate("/signup")}   className="text-lg px-8 py-4 h-auto
               relative overflow-hidden group
               bg-gradient-to-r from-blue-600 to-purple-600
               hover:from-blue-700 hover:to-purple-700
@@ -45,7 +47,7 @@ export const HeroSection = () => {
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
               
-              <Button variant="hero-outline" size="lg" className="
+              <Button onClick={()=>navigate("/login")} variant="hero-outline" size="lg" className="
               text-lg px-8 py-4 h-auto
           relative overflow-hidden group
           border-2 border-white/30 text-white
