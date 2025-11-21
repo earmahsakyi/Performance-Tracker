@@ -4,7 +4,6 @@ const cors = require('cors');
 const http = require('http');
 const jwt = require('jsonwebtoken');
 const { Server } = require('socket.io');
-const config = require('./config/default.json');
 const User = require('./models/User');
 const GroupChat = require('./models/GroupChat');
 const StudyGroup = require('./models/StudyGroup');
@@ -107,7 +106,7 @@ io.use(async (socket, next) => {
       return next(new Error('Authentication error'));
     }
 
-    const decoded = jwt.verify(token, config.jwtSecret);
+    const decoded = jwt.verify(token, process.env.jwtSecret);
     const user = await User.findById(decoded.user.id).select('-password');
     if (!user) {
       return next(new Error('User not found'));
