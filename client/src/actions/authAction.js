@@ -1,11 +1,14 @@
 import { 
-    AUTH_ERROR,REGISTER_FAIL,REGISTER_SUCCESS,LOGIN_SUCCESS ,LOGIN_FAIL ,LOGOUT ,USER_LOADED,AUTH_SET_LOADING, // Changed SET_LOADING to AUTH_SET_LOADING
+    AUTH_ERROR,REGISTER_FAIL,REGISTER_SUCCESS,LOGIN_SUCCESS ,LOGIN_FAIL ,LOGOUT ,USER_LOADED,AUTH_SET_LOADING,
     EMAIL_VERIFICATION_CONFIRM_FAILED,EMAIL_VERIFICATION_REQUEST_SENT,EMAIL_VERIFICATION_CONFIRMED,EMAIL_VERIFICATION_REQUEST_FAILED,
     FORGOT_PASSWORD_FAIL,FORGOT_PASSWORD_SUCCESS,RESET_PASSWORD_FAIL,RESET_PASSWORD_SUCCESS,
-    CLEAR_AUTH_MESSAGE
+    CLEAR_AUTH_MESSAGE,ADD_USER_SUCCESS,ADD_USER_FAIL,GET_ALL_USERS_FAIL,GET_ALL_USERS_SUCCESS,
+    GET_USER_BY_ID_FAIL,GET_USER_BY_ID_SUCCESS,DELETE_USER_SUCCESS,DELETE_USER_FAIL,
+    EDIT_USER_SUCCESS,EDIT_USER_FAIL,UNBLOCK_USER,UNBLOCK_USER_FAIL
 } from './types';
 import setAuthToken from '../utils/setAuthToken';
 import axios from 'axios';
+
 
 // Renamed setLoading to setAuthLoading and using AUTH_SET_LOADING type
 export const setAuthLoading = () => {
@@ -257,7 +260,159 @@ export const resetPassword = (email,token, newPassword) => async (dispatch) => {
     return { error: errorMessage };
   }
 
-}
+};
+
+//Unblock a user
+export const unblockUser = (userId) => async (dispatch) => {
+  dispatch(setAuthLoading());
+  const token = localStorage.getItem('token');
+  const config = {
+    headers: {
+      'Content-Type': 'application/json',
+      'x-auth-token': token,
+    },
+  };
+  try {
+    const res = await axios.put(`/api/auth/unlock/${userId}`, {}, config);
+    dispatch({
+      type: UNBLOCK_USER,
+      payload: res.data,
+    });
+    return { success: true, message: res.data.message };
+  } catch (err) {
+    dispatch({
+      type: UNBLOCK_USER_FAIL,
+      payload: err.response?.data?.message || 'Failed to unblock user',
+    });
+  }
+};
+
+export const addUser = (formData) => async (dispatch) => {
+  dispatch(setAuthLoading());
+  const token = localStorage.getItem('token');
+  const config = {
+    headers: {
+      'Content-Type': 'application/json',
+      'x-auth-token': token,
+    },
+  };
+  try {
+    const res = await axios.post('/api/auth/add-user',formData,config);
+    dispatch({
+      type: ADD_USER_SUCCESS,
+      payload: res.data,
+    });
+
+    return {success:true, message:res.data.message}
+  } catch (err) {
+    dispatch({
+      type: ADD_USER_FAIL,
+      payload: err.response?.data?.message || 'Failed to add user',
+    });
+  }
+};
+
+//get all users
+export const getAllUsers = () => async (dispatch) => {
+  dispatch(setAuthLoading());
+  const token = localStorage.getItem('token');
+  const config = {
+    headers: {
+      'Content-Type': 'application/json',
+      'x-auth-token': token,
+    },
+  };
+  try {
+    const res = await axios.get('/api/auth/users', config);
+    dispatch({
+      type: GET_ALL_USERS_SUCCESS,
+      payload: res.data.data,
+    });
+    return { success: true }; 
+  } catch (err) {
+    const errorMessage = err.response?.data?.message || 'Failed to get users';
+    dispatch({
+      type: GET_ALL_USERS_FAIL,
+      payload: errorMessage,
+    });
+    return { success: false, error: errorMessage }; 
+  }
+};
+//edit user
+export const editUser = (userId,formData) => async (dispatch) => {
+  dispatch(setAuthLoading());
+const token = localStorage.getItem('token');
+  const config = {
+    headers: {
+      'Content-Type': 'application/json',
+      'x-auth-token': token,
+    },
+  };
+  try {
+    const res = await axios.put(`/api/auth/users/${userId}`,formData, config);
+    dispatch({
+      type: EDIT_USER_SUCCESS,
+      payload: res.data,
+    });
+    return { success: true, message: res.data.message };
+  } catch (err) {
+    dispatch({
+      type: EDIT_USER_FAIL,
+      payload: err.response?.data?.message || 'Failed to edit user',
+    });
+  }
+};
+
+//delete user
+export const deleteUser = (userId) => async (dispatch) => {
+  dispatch(setAuthLoading());
+  const token = localStorage.getItem('token');
+  const config = {
+    headers: {
+      'Content-Type': 'application/json',
+      'x-auth-token': token,
+    },
+  };
+  try {
+    const res = await axios.delete(`/api/auth/users/${userId}`, config);
+    dispatch({
+      type: DELETE_USER_SUCCESS,
+      payload: res.data,
+    });
+    return { success: true, message: res.data.message };
+  } catch (err) {
+    const errorMessage = err.response?.data?.message || 'Failed to delete user';
+    dispatch({
+      type: DELETE_USER_FAIL,
+      payload: errorMessage,
+    });
+    return { success: false, error: errorMessage };
+  }
+};
+
+// get user by ID
+export const getUserById = (userId) => async (dispatch) => {
+  dispatch(setAuthLoading());
+const token = localStorage.getItem('token');
+  const config = {
+    headers: {
+      'Content-Type': 'application/json',
+      'x-auth-token': token,
+    },
+  };
+  try {
+    const res = await axios.get(`/api/auth/users/${userId}`, config);
+    dispatch({
+      type: GET_USER_BY_ID_SUCCESS,
+      payload: res.data,
+    });
+  } catch (err) {
+    dispatch({
+      type: GET_USER_BY_ID_FAIL,
+      payload: err.response?.data?.message || 'Failed to get user',
+    });
+  }
+};
 
 export  const logout = () => async (dispatch) => {
    dispatch(setAuthLoading()); 

@@ -40,6 +40,18 @@ import {
   CLEAR_COURSE_SUCCESS,
   SET_COURSE_LOADING,
   RESET_COURSE_STATE,
+  ADD_COURSE_MODULE_REQUEST,
+  ADD_COURSE_MODULE_SUCCESS,
+  ADD_COURSE_MODULE_FAIL,
+  DELETE_COURSE_MODULE_REQUEST,
+  DELETE_COURSE_MODULE_SUCCESS,
+  DELETE_COURSE_MODULE_FAIL,
+  REORDER_COURSE_MODULES_REQUEST,
+  REORDER_COURSE_MODULES_SUCCESS,
+  REORDER_COURSE_MODULES_FAIL,
+  GET_SINGLE_MODULE_REQUEST,
+  GET_SINGLE_MODULE_SUCCESS,
+  GET_SINGLE_MODULE_FAIL,
   
 } from './types.js';
 
@@ -47,7 +59,7 @@ import {
 const setAuthToken = () => {
   const token = localStorage.getItem('token');
   if (token) {
-    // Try both possible header formats
+    
     axios.defaults.headers.common['x-auth-token'] = token;
    
   } else {
@@ -55,7 +67,7 @@ const setAuthToken = () => {
   }
 };
 
-// FIXED: Updated API endpoints to use consistent path
+//  Updated API endpoints to use consistent path
 export const getCourses = (params = {}) => async (dispatch) => {
   dispatch({ type: GET_COURSES_REQUEST });
   
@@ -79,13 +91,13 @@ export const getCourses = (params = {}) => async (dispatch) => {
   }
 };
 
-// FIXED: Updated path
+// Updated path
 export const getCourse = (courseId) => async (dispatch) => {
   dispatch({ type: GET_COURSE_REQUEST });
   
   try {
     setAuthToken();
-    const res = await axios.get(`/api/courses/${courseId}`); // Fixed path
+    const res = await axios.get(`/api/courses/${courseId}`); 
     
     dispatch({
       type: GET_COURSE_SUCCESS,
@@ -174,7 +186,7 @@ export const createCourse = (courseData) => async (dispatch) => {
       }
     };
     
-    const res = await axios.post('/api/courses', courseData, config); // Fixed path
+    const res = await axios.post('/api/courses', courseData, config); 
     
     dispatch({
       type: CREATE_COURSE_SUCCESS,
@@ -260,12 +272,14 @@ export const getCourseStudents = (courseId) => async (dispatch) => {
   
   try {
     setAuthToken();
-    const res = await axios.get(`/api/courses/${courseId}/students`); // Fixed path
+    const res = await axios.get(`/api/courses/${courseId}/students`); 
+    console.log(res.data.data)
     
     dispatch({
       type: GET_COURSE_STUDENTS_SUCCESS,
       payload: { courseId, students: res.data.data, count: res.data.count }
     });
+    return { success: true, student: res.data.data };
   } catch (error) {
     console.error('getCourseStudents error:', error.response?.data || error.message);
     dispatch({
@@ -280,7 +294,7 @@ export const getCourseModules = (courseId) => async (dispatch) => {
   
   try {
     setAuthToken();
-    const res = await axios.get(`/api/courses/${courseId}/modules`); // Fixed path
+    const res = await axios.get(`/api/courses/${courseId}/modules`); 
     
     dispatch({
       type: GET_COURSE_MODULES_SUCCESS,
@@ -320,6 +334,161 @@ export const updateCourseModule = (courseId, moduleIndex, moduleData) => async (
     });
   }
 };
+
+// Add new module to course
+export const addCourseModule = (courseId, moduleData) => async (dispatch) => {
+  dispatch({ type: ADD_COURSE_MODULE_REQUEST });
+  
+  try {
+    setAuthToken();
+    const config = {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    };
+    
+    const res = await axios.post(
+      `/api/courses/${courseId}/modules`, 
+      moduleData, 
+      config
+    );
+    
+    dispatch({
+      type: ADD_COURSE_MODULE_SUCCESS,
+      payload: { 
+        courseId, 
+        module: res.data.data.module,
+        moduleIndex: res.data.data.moduleIndex,
+        totalModules: res.data.data.totalModules,
+        message: res.data.message 
+      }
+    });
+
+    return { success: true, data: res.data };
+    
+  } catch (error) {
+    console.error('addCourseModule error:', error.response?.data || error.message);
+    const errorMessage = error.response?.data?.message || error.message;
+    
+    dispatch({
+      type: ADD_COURSE_MODULE_FAIL,
+      payload: errorMessage
+    });
+    
+    return { success: false, error: errorMessage };
+  }
+};
+
+// Delete module from course
+export const deleteCourseModule = (courseId, moduleIndex) => async (dispatch) => {
+  dispatch({ type: DELETE_COURSE_MODULE_REQUEST });
+  
+  try {
+    setAuthToken();
+    
+    const res = await axios.delete(
+      `/api/courses/${courseId}/modules/${moduleIndex}`
+    );
+    
+    dispatch({
+      type: DELETE_COURSE_MODULE_SUCCESS,
+      payload: { 
+        courseId, 
+        moduleIndex: res.data.data.deletedModuleIndex,
+        remainingModules: res.data.data.remainingModules,
+        message: res.data.message 
+      }
+    });
+
+    return { success: true, data: res.data };
+    
+  } catch (error) {
+    console.error('deleteCourseModule error:', error.response?.data || error.message);
+    const errorMessage = error.response?.data?.message || error.message;
+    
+    dispatch({
+      type: DELETE_COURSE_MODULE_FAIL,
+      payload: errorMessage
+    });
+    
+    return { success: false, error: errorMessage };
+  }
+};
+
+// Reorder course modules
+export const reorderCourseModules = (courseId, newOrder) => async (dispatch) => {
+  dispatch({ type: REORDER_COURSE_MODULES_REQUEST });
+  
+  try {
+    setAuthToken();
+    const config = {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    };
+    
+    const res = await axios.put(
+      `/api/courses/${courseId}/modules/reorder`,
+      { newOrder },
+      config
+    );
+    
+    dispatch({
+      type: REORDER_COURSE_MODULES_SUCCESS,
+      payload: { 
+        courseId, 
+        modules: res.data.data.modules,
+        totalModules: res.data.data.totalModules,
+        message: res.data.message 
+      }
+    });
+
+    return { success: true, data: res.data };
+    
+  } catch (error) {
+    console.error('reorderCourseModules error:', error.response?.data || error.message);
+    const errorMessage = error.response?.data?.message || error.message;
+    
+    dispatch({
+      type: REORDER_COURSE_MODULES_FAIL,
+      payload: errorMessage
+    });
+    
+    return { success: false, error: errorMessage };
+  }
+};
+
+// Get single module
+export const getCourseModule = (courseId, moduleIndex) => async (dispatch) => {
+  dispatch({ type: GET_SINGLE_MODULE_REQUEST });
+  
+  try {
+    setAuthToken();
+    
+    const res = await axios.get(
+      `/api/courses/${courseId}/modules/${moduleIndex}`
+    );
+    
+    dispatch({
+      type: GET_SINGLE_MODULE_SUCCESS,
+      payload: res.data.data
+    });
+
+    return { success: true, data: res.data };
+    
+  } catch (error) {
+    console.error('getCourseModule error:', error.response?.data || error.message);
+    const errorMessage = error.response?.data?.message || error.message;
+    
+    dispatch({
+      type: GET_SINGLE_MODULE_FAIL,
+      payload: errorMessage
+    });
+    
+    return { success: false, error: errorMessage };
+  }
+};
+
 
 export const addCourseAnnouncement = (courseId, announcementData) => async (dispatch) => {
   dispatch({ type: ADD_COURSE_ANNOUNCEMENT_REQUEST });

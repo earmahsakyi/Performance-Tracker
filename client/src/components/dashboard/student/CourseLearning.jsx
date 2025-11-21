@@ -55,7 +55,7 @@ const CourseLearning = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  // FIXED: Better ref management with stable keys
+  // Better ref management with stable keys
   const initializationRef = useRef({
     courseData: false,
     studentData: false,
@@ -67,7 +67,7 @@ const CourseLearning = () => {
   const { user, token } = useSelector((state) => state.auth);
   const { userStudent, loading: studentLoading } = useSelector((state) => state.student);
 
-  // FIXED: Store token in ref for stability
+  //  Store token in ref for stability
   const tokenRef = useRef(null);
   if (!tokenRef.current && token) {
     tokenRef.current = token;
@@ -84,11 +84,11 @@ const CourseLearning = () => {
   const [submissionLoading, setSubmissionLoading] = useState(false);
   const [markingComplete, setMarkingComplete] = useState(false);
 
-  // FIXED: Memoize stable IDs to prevent unnecessary re-renders
+  //  Memoize stable IDs to prevent unnecessary re-renders
   const userId = useMemo(() => user?._id, [user?._id]);
   const userStudentId = useMemo(() => userStudent?._id, [userStudent?._id]);
 
-  // FIXED: Single initialization effect for course data
+  //  Single initialization effect for course data
   useEffect(() => {
     if (courseId && !initializationRef.current.courseData) {
       initializationRef.current.courseData = true;
@@ -97,7 +97,7 @@ const CourseLearning = () => {
     }
   }, [courseId, dispatch]);
 
-  // FIXED: Single initialization effect for student data
+  //  Single initialization effect for student data
   useEffect(() => {
     if (userId && tokenRef.current && !initializationRef.current.studentData) {
       initializationRef.current.studentData = true;
@@ -105,7 +105,7 @@ const CourseLearning = () => {
     }
   }, [userId, dispatch]);
 
-  // FIXED: Better controlled fetch for student course data
+  // Better controlled fetch for student course data
   useEffect(() => {
     const fetchStudentCourseData = async () => {
       if (!userStudentId || !courseId || !tokenRef.current || initializationRef.current.studentCourseData) {
@@ -121,7 +121,7 @@ const CourseLearning = () => {
           dispatch(getStudentAssignments(userStudentId, courseId, tokenRef.current))
         ]);
 
-        // FIXED: Single batch state update
+        // Single batch state update
         if (progressDetails) {
           setCourseProgressDetails(progressDetails);
           setCompletedModules(progressDetails.completedModules || []);
@@ -140,7 +140,7 @@ const CourseLearning = () => {
     fetchStudentCourseData();
   }, [userStudentId, courseId, dispatch]);
 
-  // FIXED: Stable success/error handling
+  //  Stable success/error handling
   useEffect(() => {
     if (success) {
       toast.success(success);
@@ -152,7 +152,7 @@ const CourseLearning = () => {
     }
   }, [success, error, dispatch]);
 
-  // FIXED: Memoize enrollment check with stable references
+  //  Memoize enrollment check with stable references
   const isEnrolled = useMemo(() => {
     if (!userStudent?.enrolledCourses || !courseId) return false;
     
@@ -177,7 +177,7 @@ const CourseLearning = () => {
     return getCurrentEnrollment?.progress || 0;
   }, [getCurrentEnrollment]);
 
-  // FIXED: Stable callback with proper dependencies
+  //  Stable callback with proper dependencies
   const handleMarkModuleComplete = useCallback(async (moduleIndex) => {
     if (!userStudentId || markingComplete || completedModules.includes(moduleIndex)) {
       if (completedModules.includes(moduleIndex)) {
@@ -192,7 +192,7 @@ const CourseLearning = () => {
       const result = await dispatch(markModuleComplete(userStudentId, courseId, moduleIndex, tokenRef.current));
       
       if (result) {
-        // FIXED: Update local state immediately
+        //  Update local state immediately
         setCompletedModules(result.completedModules || []);
         toast.success("Module marked as complete!");
         
@@ -218,7 +218,7 @@ const CourseLearning = () => {
     }
   }, [userStudentId, markingComplete, completedModules, dispatch, courseId, userId, course?.modules?.length]);
 
-  // FIXED: Stable assignment submission with better error handling
+  //  Stable assignment submission with better error handling
   const handleAssignmentSubmission = useCallback(async (moduleIndex, assignmentIndex) => {
     if (!userStudentId || submissionLoading) return;
 
@@ -242,7 +242,7 @@ const CourseLearning = () => {
       const result = await dispatch(submitAssignment(userStudentId, assignmentData, tokenRef.current));
       
       if (result && result.success !== false) {
-        // FIXED: Update assignments state immediately
+        // Update assignments state immediately
         const updatedAssignments = await dispatch(getStudentAssignments(userStudentId, courseId, tokenRef.current));
         if (updatedAssignments) {
           setCourseAssignments(updatedAssignments);
@@ -264,7 +264,7 @@ const CourseLearning = () => {
     }
   }, [userStudentId, submissionLoading, submissionText, submissionFile, course?.modules, courseId, dispatch]);
 
-  // FIXED: Memoize utility functions
+  //  Memoize utility functions
   const formatDate = useCallback((dateString) => {
     return new Date(dateString).toLocaleDateString("en-US", {
       year: "numeric",
@@ -294,7 +294,7 @@ const CourseLearning = () => {
     );
   }, [courseAssignments]);
 
-  // FIXED: Memoize performance stats calculation
+  //  Memoize performance stats calculation
   const performanceStats = useMemo(() => {
     if (!courseProgressDetails) return null;
 
@@ -325,7 +325,7 @@ const CourseLearning = () => {
     return stats;
   }, [courseProgressDetails, courseAssignments, course?.modules]);
 
-  // FIXED: Reset flags only when truly necessary
+  // Reset flags only when truly necessary
   useEffect(() => {
     if (userStudentId && initializationRef.current.studentCourseData) {
       // Only reset if the student ID actually changed
@@ -337,12 +337,12 @@ const CourseLearning = () => {
     }
   }, [userStudentId]);
 
-  // FIXED: Memoize loading states
+  //Memoize loading states
   const isLoading = useMemo(() => {
     return courseLoading || studentLoading;
   }, [courseLoading, studentLoading]);
 
-  // FIXED: Memoize resource renderer to prevent recreations
+  //  Memoize resource renderer to prevent recreations
   const renderResource = useCallback((resource, index) => {
     // Handle both string and object formats
     if (typeof resource === 'string') {

@@ -14,7 +14,7 @@ const userSchema = new mongoose.Schema({
     },
     role: {
         type: String,
-        enum: ['Student', 'Admin'],
+        enum: ['Student', 'Admin','Instructor'],
         default: 'Student',
    
         
@@ -46,6 +46,10 @@ const userSchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
+    loginAttempts: { type: Number, default: 0 },
+    lockUntil: { type: Date, default: null },
+    lockLevel: { type: Number, default: 0 }, 
+    lockedManually: { type: Boolean, default: false },
      
   
 

@@ -105,10 +105,10 @@ export const createStudent = (studentData, token) => async (dispatch) => {
 };
 
 // Get all students with optional filters
-export const getStudents = (filters = {}, token) => async (dispatch) => {
+export const getStudents = (filters = {}) => async (dispatch) => {
   try {
     dispatch({ type: GET_STUDENTS_REQUEST });
-
+    const token = localStorage.getItem('token');
     const params = new URLSearchParams();
     Object.keys(filters).forEach(key => {
       if (filters[key]) {

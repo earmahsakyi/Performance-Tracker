@@ -103,7 +103,7 @@ const Register = () => {
     <main className="container flex min-h-[80vh] items-center justify-center py-12">
       <section className="w-full max-w-md rounded-xl border bg-card p-8 shadow">
         <FaUserPlus className="text-primary text-4xl ml-40 " />
-        <h1 className="text-2xl font-bold text-center mt-3">
+        <h1 className="text-2xl font-bold text-center mt-3 font-heading">
           Sign Up for Trackademy</h1>
       
         <form onSubmit={onSubmit} className="mt-6 space-y-5">

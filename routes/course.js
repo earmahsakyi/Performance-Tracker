@@ -13,7 +13,11 @@ const {
   addCourseAnnouncement,
   getCourseModules,
   updateCourseModule,
-  advancedCourseSearch
+  advancedCourseSearch,
+  addCourseModule,
+  deleteCourseModule,
+  reorderCourseModules,
+  getCourseModule
 } = require('../controllers/courseController');
 
 // Routes with /api/courses prefix
@@ -77,5 +81,38 @@ router.put('/:id/modules/:moduleIndex', auth, updateCourseModule);
 // @desc    Advanced course search
 // @access  Public
 router.get('/search/advanced', auth, advancedCourseSearch);
+
+router.put(
+  '/:id/modules/reorder',
+  auth,
+  reorderCourseModules
+);
+
+// Get all modules
+router.get('/:id/modules', auth, getCourseModules);
+
+// Add new module
+router.post(
+  '/:id/modules',
+ auth,
+  addCourseModule
+);
+
+// Get single module (students + instructors)
+router.get('/:id/modules/:moduleIndex', auth, getCourseModule);
+
+// Update existing module
+router.put(
+  '/:id/modules/:moduleIndex',
+  auth,
+  updateCourseModule
+);
+
+// Delete module
+router.delete(
+  '/:id/modules/:moduleIndex',
+  auth,
+  deleteCourseModule
+);
 
 module.exports = router;

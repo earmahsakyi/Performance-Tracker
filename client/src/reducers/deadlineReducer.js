@@ -1,4 +1,3 @@
-// reducers/deadlineReducer.js
 import {
   FETCH_DEADLINES_REQUEST,
   FETCH_DEADLINES_SUCCESS,
@@ -12,10 +11,14 @@ import {
   DELETE_DEADLINE_REQUEST,
   DELETE_DEADLINE_SUCCESS,
   DELETE_DEADLINE_FAIL,
+   FETCH_DEADLINE_BY_COURSE_ID_FAIL,
+  FETCH_DEADLINE_BY_COURSE_ID_SUCCESS,
+  FETCH_DEADLINE_BY_COURSE_ID_REQUEST
 } from '../actions/types.js';
 
 const initialState = {
   deadlines: [],
+  courseDeadlines: [],
   loading: false,
   error: null,
 };
@@ -26,11 +29,23 @@ export const deadlineReducer = (state = initialState, action) => {
     case CREATE_DEADLINE_REQUEST:
     case UPDATE_DEADLINE_REQUEST:
     case DELETE_DEADLINE_REQUEST:
+    case FETCH_DEADLINE_BY_COURSE_ID_REQUEST:
       return {
         ...state,
         loading: true,
       };
-
+    case FETCH_DEADLINE_BY_COURSE_ID_SUCCESS:
+      return{
+        ...state,
+        loading: false,
+        courseDeadlines: action.payload,
+      }
+    case FETCH_DEADLINE_BY_COURSE_ID_FAIL:
+      return{
+        ...state,
+        loading: false,
+        error: action.payload,
+      }
     case FETCH_DEADLINES_SUCCESS:
       return {
         ...state,

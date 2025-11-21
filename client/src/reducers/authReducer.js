@@ -4,7 +4,12 @@ import {
     EMAIL_VERIFICATION_CONFIRMED, EMAIL_VERIFICATION_CONFIRM_FAILED,
      FORGOT_PASSWORD_SUCCESS, FORGOT_PASSWORD_FAIL,
      RESET_PASSWORD_SUCCESS, RESET_PASSWORD_FAIL,
-    CLEAR_AUTH_MESSAGE
+     ADD_USER_SUCCESS,ADD_USER_FAIL,
+    CLEAR_AUTH_MESSAGE,GET_ALL_USERS_SUCCESS,GET_ALL_USERS_FAIL,
+    GET_USER_BY_ID_SUCCESS,GET_USER_BY_ID_FAIL,
+    DELETE_USER_SUCCESS,DELETE_USER_FAIL,
+    EDIT_USER_SUCCESS,EDIT_USER_FAIL,
+    UNBLOCK_USER,UNBLOCK_USER_FAIL
 } from '../actions/types';
 
 const initialState = {
@@ -17,6 +22,8 @@ const initialState = {
     email: '',
     emailVerificationStatus: null,
     passwordResetStatus: null,
+    users:[],
+
 };
 
 const authReducer = (state = initialState, action) => {
@@ -40,7 +47,90 @@ const authReducer = (state = initialState, action) => {
           profileUpdated: action.payload.profileUpdated,
         }
    };
+   case UNBLOCK_USER:
+    return {
+      ...state,
+      loading: false,
+      message: action.payload.message || action.payload,
+      error: null,
+    };
 
+    case UNBLOCK_USER_FAIL:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+
+   case EDIT_USER_SUCCESS:
+    return {
+      ...state,
+      loading: false,
+      users: state.users.map(user =>
+      user._id === action.payload.data?._id
+        ? { ...user, ...action.payload.data }
+        : user
+    ),
+      message: action.payload.message || action.payload,
+      error: null,
+    };
+
+  case DELETE_USER_SUCCESS:
+    return {
+      ...state,
+      loading:false,
+      message:action.payload.message || action.payload,
+      users: state.users.filter(user => user._id !== action.payload.userId),
+      error:null
+    }
+  case DELETE_USER_FAIL:
+  case EDIT_USER_FAIL:
+    return {
+      ...state,
+      loading: false,
+      error: action.payload,
+    };
+
+
+   case  ADD_USER_SUCCESS:
+    return {
+      ...state,
+      loading: false,
+      message: action.payload.message || action.payload,
+      error: null,
+    };
+
+    case GET_ALL_USERS_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        users: action.payload || [],
+        error: null,
+      };
+    
+    case GET_USER_BY_ID_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        user: action.payload,
+        error: null,
+      };
+    
+    case GET_ALL_USERS_FAIL:
+    case GET_USER_BY_ID_FAIL:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+
+    case ADD_USER_FAIL:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+    
     case REGISTER_SUCCESS:
   return {
     ...state,
@@ -112,7 +202,6 @@ const authReducer = (state = initialState, action) => {
         passwordResetStatus: 'success',
         message: action.payload.message || action.payload,
         email: action.payload.email || '',
-        passwordResetStatus: 'codeSent'
       };
     case RESET_PASSWORD_FAIL:
     case FORGOT_PASSWORD_FAIL:

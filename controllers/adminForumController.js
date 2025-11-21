@@ -1,7 +1,6 @@
 const Post = require('../models/Post');
 const ForumCategory = require('../models/ForumCategory');
 const ForumComment = require('../models/ForumComment');
-const Student = require('../models/Student');
 const User = require('../models/User');
 
 // Category Management
@@ -320,6 +319,23 @@ exports.getForumAnalytics = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Failed to fetch analytics'
+    });
+  }
+};
+
+//get categories
+exports.getCategories = async (req, res) => {
+  try {
+    const categories = await ForumCategory.find();
+    res.json({
+      success: true,
+      data: categories
+    });
+  } catch (error) {
+    console.error('Get categories error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch categories'
     });
   }
 };

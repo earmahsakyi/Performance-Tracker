@@ -48,6 +48,8 @@ const searchValidation = [
     .withMessage('Search query must be between 2 and 100 characters')
 ];
 
+
+
 // Public routes (with auth for user-specific data)
 router.get('/dashboard', auth, forumController.getForumDashboard);
 router.get('/categories', auth, forumController.getCategories);
@@ -63,6 +65,7 @@ router.post('/posts/:postId/like', auth, forumController.togglePostLike);
 
 // Comments routes
 router.post('/posts/:postId/comments', auth, commentValidation, validate, forumController.addComment);
+
 
 module.exports = router;
 

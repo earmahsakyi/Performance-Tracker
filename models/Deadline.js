@@ -5,7 +5,7 @@ const deadlineSchema = new mongoose.Schema({
   courseId: { type: mongoose.Schema.Types.ObjectId, ref: "Course", required: true },
   courseName: { type: String, required: true },
   date: { type: Date, required: true },
-  priority: { type: String, enum: ["low", "medium", "high"], default: "low" },
+  priority: { type: String, enum: ["Low", "Medium", "High"], default: "Low" },
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
 }, { timestamps: true });
 

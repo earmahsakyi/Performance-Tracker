@@ -4,40 +4,94 @@ import { StatsCard } from "./StatsCard";
 import { DashboardLayout } from "./DashboardLayout";
 import { dashboardStats, enrollmentTrendData, coursePopularityData } from "./userDummy";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from "recharts";
+import { getAllUsers } from "@/actions/authAction";
+import { getStudents } from "@/actions/studentAction";
+import { getAdmins } from "@/actions/adminAction";
+import { getCourses } from "@/actions/courseAction";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchAnnouncements } from "@/actions/announcementAction";
 
 export default function Dashboard() {
+  const dispatch = useDispatch();
+  const { users, loading, error,token } = useSelector((state) => state.auth);
+  const {students } = useSelector(state=> state.student)
+  const {admins} = useSelector(state=> state.admin)
+  const {courses} = useSelector(state=> state.course)
+  const {announcements} = useSelector(state=> state.announcement)
+  // console.log(token)
+
+  useEffect(() => {
+    if (users.length === 0) {
+      dispatch(getAllUsers());
+    }
+  }, [users.length,dispatch]);
+
+  useEffect(()=> {
+    if(students.length === 0){
+      dispatch(getStudents());
+  }
+},[students.length,dispatch,token]);
+
+useEffect(()=> {
+  if(admins.length === 0){
+    dispatch(getAdmins());
+}
+},[admins.length,dispatch]);
+
+useEffect(()=> {
+  if(courses.length === 0){
+    dispatch(getCourses());
+}
+},[courses.length,dispatch]);
+
+useEffect(()=> {
+  if(announcements.length === 0){
+    dispatch(fetchAnnouncements());
+}
+},[announcements.length,dispatch]);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
+
+
   const statsCards = [
     {
       title: "Total Users",
-      value: dashboardStats.totalUsers,
+      value: users?.length,
       change: "+12% from last month",
       changeType: "positive",
       icon: Users,
     },
     {
       title: "Students",
-      value: dashboardStats.totalStudents,
+      value: students?.length,
       change: "+8% from last month",
       changeType: "positive" ,
       icon: GraduationCap,
     },
     {
       title: "Instructors",
-      value: dashboardStats.totalInstructors,
+      value: admins?.length,
       change: "+2 new this month",
       changeType: "positive" ,
       icon: User,
     },
     {
       title: "Active Courses",
-      value: dashboardStats.totalCourses,
+      value: courses?.length,
       change: "+5 this semester",
       changeType: "positive" ,
       icon: BookOpen,
     },
     {
       title: "Announcements",
-      value: dashboardStats.totalAnnouncements,
+      value: announcements?.length,
       change: "3 new this week",
       changeType: "neutral" ,
       icon: Megaphone,

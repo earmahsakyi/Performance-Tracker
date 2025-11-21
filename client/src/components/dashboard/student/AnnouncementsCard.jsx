@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import AnnouncementsModal from './AnnouncementModal';
 
-const AnnouncementsCard = ({ courseId = null, maxItems = 3 }) => {
+const AnnouncementsCard = ({ courseId = null, maxItems = 2 }) => {
   const dispatch = useDispatch();
   const { announcements, loading, error } = useSelector((state) => state.announcement);
   const [showModal, setShowModal] = useState(false);

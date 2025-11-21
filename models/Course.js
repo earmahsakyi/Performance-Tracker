@@ -17,7 +17,7 @@ const courseSchema = new mongoose.Schema({
       title: String, // e.g., "React Basics"
       description: String,
       resources: [ {
-          type: mongoose.Schema.Types.Mixed, // Allows both String and Object
+          type: mongoose.Schema.Types.Mixed, 
           default: []
         }], 
       assignments: [

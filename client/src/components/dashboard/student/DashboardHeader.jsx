@@ -17,7 +17,6 @@ import { SidebarTrigger } from "@/components/ui/sidebar"
 import {logout } from '../../../actions/authAction';
 import { getStudentByUserId } from "@/actions/studentAction";
 import { useSelector, useDispatch } from "react-redux";
-import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import EditStudentProfileModal from "../../student/EditStudentProfileModal";
 
@@ -36,9 +35,9 @@ export function DashboardHeader() {
     }
   }, [dispatch, user?._id, token]);
 
-  const handleNotificationClick = () => {
-    toast.success("No new notifications!")
-  }
+  // const handleNotificationClick = () => {
+  //   toast.success("No new notifications!")
+  // }
   
   const handleLogout = () => {
     dispatch(logout())
@@ -91,7 +90,7 @@ export function DashboardHeader() {
           {/* Right Section */}
           <div className="flex items-center gap-3">
             {/* Notifications */}
-            <Button
+            {/* <Button
               variant="ghost"
               size="icon"
               onClick={handleNotificationClick}
@@ -104,7 +103,7 @@ export function DashboardHeader() {
               >
                 3
               </Badge>
-            </Button>
+            </Button> */}
 
             {/* Profile Dropdown */}
             <DropdownMenu>

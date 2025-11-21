@@ -6,9 +6,10 @@ const Student = require('../models/Student');
 const createDeadline = async (req, res) => {
 
 
-    if (!req.user || !req.user.id) {
-      return res.status(401).json({ msg: 'User not authenticated' });
-    }
+   //check if the user is an instructor
+   if (req.user.role !== "Admin") {
+    return res.status(403).json({ message: "Only instructors can create deadlines" });
+  }
 
 
   try {
@@ -97,6 +98,16 @@ const getAllDeadlines = async (req, res) => {
   }
 };
 
+//get all deadlines for a course
+const getDeadlinesByCourse = async (req, res) => {
+  try {
+    const deadlines = await Deadline.find({ courseId: req.params.courseId }).populate("courseId", "title code");
+    res.status(200).json(deadlines);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching all deadlines", error: error.message });
+  }
+};
+
 // Export all
 module.exports = {
   createDeadline,
@@ -105,4 +116,5 @@ module.exports = {
   updateDeadline,
   deleteDeadline,
   getAllDeadlines,
+  getDeadlinesByCourse,
 };

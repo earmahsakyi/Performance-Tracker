@@ -31,47 +31,137 @@ exports.getLoginUser = async (req, res) => {
   }
 };
 
+const MAX_ATTEMPTS = 3;
+const LOCK_DURATIONS = {
+  1: 30 * 60 * 1000, // 30 minutes
+  2: 60 * 60 * 1000, // 1 hour
+};
+
 //@route Post api/auth
 // desc Auth user & get token
-//@access Priavte
+//@access Private
 exports.AuthUserToken = async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
 
-    const errors = validationResult(req);
-    if(!errors.isEmpty()){
-        return res.status(400).json({ errors: errors.array()});
+  const { email, password } = req.body;
+
+  try {
+    let user = await User.findOne({ email });
+    
+    if (!user || !user.isVerified) {
+      return res.status(400).json({ 
+        msg: 'Invalid credentials or email not verified' 
+      });
     }
-    const { email, password } = req.body; 
-    try{
-        let user = await User.findOne({ email });
-        if (!user || !user.isVerified) {
-             return res.status(400).json({ msg: 'Invalid credentials or email not verified' });
-        }
 
-        const isMatch = await bcrypt.compare(password, user.password);
-        if(!isMatch){
-            return res.status(400).json({msg: 'Invalid Credentials'})
-        }
-        const payload = {
-            user: {
-                id: user.id,
-                role: user.role,
-                profileUpdated: user.profileUpdated
-            }
-        }
-        jwt.sign(payload, config.jwtSecret, {
-            expiresIn: '1d'
-        },
-        (err, token) => {
-            if(err) throw err;
-            res.json({ token, role: user.role, userID: user.id, profileUpdated: user.profileUpdated})
-        }
-    )
-    }catch(err){
-        console.error(err.message);
-        res.status(500).json({ msg: 'Server Error'})
-
+    // Check manual lock
+    if (user.lockedManually) {
+      return res.status(423).json({ 
+        msg: 'Account locked. Contact Admin to unlock.' 
+      });
     }
-}
+
+    // Check timed lock
+    if (user.lockUntil && user.lockUntil > new Date()) {
+      const wait = Math.ceil((user.lockUntil.getTime() - Date.now()) / 60000);
+      return res.status(423).json({ 
+        msg: `Account locked. Try again in ${wait} minute(s).` 
+      });
+    }
+
+    // Clear expired lock
+    if (user.lockUntil && user.lockUntil <= new Date()) {
+      user.lockUntil = null;
+      user.loginAttempts = 0;
+      user.lockLevel = 0;
+      await user.save();
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    
+    if (!isMatch) {
+      user.loginAttempts += 1;
+
+      if (user.loginAttempts >= MAX_ATTEMPTS) {
+        user.lockLevel += 1;
+
+        if (user.lockLevel >= 3) {
+          user.lockedManually = true;
+          
+          const html = `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+              <h2 style="color: #d32f2f;">Account Locked</h2>
+              <p>Hello,</p>
+              <p>We noticed multiple unsuccessful login attempts on your account associated with this email address.</p>
+              <p>As a result, your account has been temporarily locked for security reasons.</p>
+              <p>If you believe this was a mistake or you require urgent access, please contact the school administration to have your account reviewed and unlocked.</p>
+              <div style="background-color: #f5f5f5; padding: 15px; margin: 20px 0; border-left: 4px solid #d32f2f;">
+                <strong>Status:</strong> Locked after too many failed attempts<br>
+                <strong>Next step:</strong> Contact admin or wait if this is your 1st or 2nd lock.
+              </div>
+              <p>If this activity was not initiated by you, we recommend resetting your password after regaining access.</p>
+              <p>Thank you,<br>School Management System Team</p>
+            </div>
+          `;
+
+          // Send mail to locked account
+          try {
+            await sendEmail({
+              to: email,
+              subject: 'Account Locked',
+              html,
+            });
+          } catch (emailErr) {
+            console.error('Failed to send lock email:', emailErr);
+          }
+        } else {
+          user.lockUntil = new Date(Date.now() + LOCK_DURATIONS[user.lockLevel]);
+        }
+      }
+
+      await user.save();
+      return res.status(400).json({ msg: 'Invalid Credentials' });
+    } 
+
+    // Password is correct - reset attempts and proceed with login
+    if (user.loginAttempts > 0 || user.lockLevel > 0) {
+      user.loginAttempts = 0;
+      user.lockLevel = 0;
+      user.lockUntil = null;
+      await user.save();
+    }
+
+    const payload = {
+      user: {
+        id: user.id,
+        role: user.role,
+        profileUpdated: user.profileUpdated
+      }
+    };
+
+    jwt.sign(
+      payload,
+      config.jwtSecret,
+      { expiresIn: '1d' },
+      (err, token) => {
+        if (err) throw err;
+        res.json({
+          token,
+          role: user.role,
+          userID: user.id,
+          profileUpdated: user.profileUpdated
+        });
+      }
+    );
+
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json({ msg: 'Server Error' });
+  }
+};
 
 // Register a user
 // access public
@@ -410,3 +500,210 @@ exports.getUserById = async (req, res) => {
   }
 };
 
+
+
+//unlock blocked users
+exports.unlockUser = async (req, res) => {
+  try {
+    const { userId } = req.params;
+   
+
+    // Check if requester is admin (you need to add this check)
+    if (req.user.role !== 'Admin') {
+      return res.status(403).json({ 
+        success: false,
+        error: 'Only admins can unlock user accounts' 
+      });
+    }
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ 
+        success: false,
+        error: 'User not found' 
+      });
+    }
+
+    // Store previous lock state 
+    const wasLocked = user.lockedManually || (user.lockUntil && user.lockUntil > new Date());
+
+    user.lockedManually = false;
+    user.lockLevel = 0;
+    user.lockUntil = null;
+    user.loginAttempts = 0;
+
+    await user.save();
+    await sendEmail({
+      to: user.email,
+      subject: 'Account Unlocked',
+      html: `
+        <div style="font-family: Arial, sans-serif; background-color: #f9fafc; padding: 20px; border-radius: 8px; max-width: 600px; margin: auto; border: 1px solid #e5e7eb;">
+          <h2 style="color: #007AFF; text-align: center; margin-bottom: 10px;">Trackademy</h2>
+          <p style="font-size: 16px; color: #333;">Hello,</p>
+          <p style="font-size: 16px; color: #333;">
+            Your account has been unlocked. You can now log in to your account.
+          </p>
+          <p style="font-size: 14px; color: #555;">
+            If you have any questions or concerns, please contact our support team.
+          </p>
+          <hr style="margin: 20px 0; border: none; border-top: 1px solid #e5e7eb;" />
+          <p style="font-size: 12px; color: #999; text-align: center;">
+            &copy; ${new Date().getFullYear()} Trackademy. All rights reserved.
+          </p>
+        </div>
+      `
+    });
+
+
+  
+
+    res.json({ 
+      success: true, 
+      message: `User account ${user.email} unlocked successfully`,
+      wasLocked 
+    });
+  } catch (error) {
+    console.error('Error unlocking user:', error);
+    res.status(500).json({ 
+      success: false,
+      error: 'An error occurred while unlocking the user account' 
+    });
+  }
+};
+
+//route to create user
+exports.createUser = async (req, res) => {
+  try {
+    const { email, password, role } = req.body;
+
+    // Check if requester is admin
+    if (req.user.role !== 'Admin') {
+      return res.status(403).json({
+        success: false,
+        error: 'Only admins can create user accounts'
+      });
+    }
+
+    // Check if user already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ 
+        success: false,
+        error: 'User already exists' 
+      });
+    }
+
+    // Create new user
+    const user = new User({ email, password, role });
+    const salt = await bcrypt.genSalt(10);  
+    user.password = await bcrypt.hash(password, salt);
+    user.isVerified = true;
+    await user.save();
+
+    // IMPROVED: Return created user data
+    res.status(201).json({ 
+      success: true, 
+      message: 'User created successfully',
+      user: {
+        _id: user._id,
+        email: user.email,
+        role: user.role,
+        isVerified: user.isVerified
+      }
+    });
+  } catch (error) {
+    console.error('Error creating user:', error);
+    res.status(500).json({ 
+      success: false,
+      error: 'An error occurred while creating the user' 
+    });
+  }
+};
+
+//delete user
+exports.deleteUser = async (req, res) => {
+  try {
+    const { id } = req.params; 
+
+    // Check if requester is admin
+    if (req.user.role !== 'Admin') {
+      return res.status(403).json({
+        success: false,
+        error: 'Only admins can delete user accounts'
+      });
+    }
+
+    const user = await User.findById(id);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: 'User not found'
+      });
+    }
+
+    
+    await User.findByIdAndDelete(id);
+
+    res.json({
+      success: true,
+      message: 'User deleted successfully',
+      id:id
+    });
+  } catch (error) {
+    console.error('Error deleting user:', error);
+    res.status(500).json({
+      success: false,
+      error: 'An error occurred while deleting the user'
+    });
+  }
+};
+
+//edit user
+exports.editUser = async (req, res) => {
+  try {
+    const { id } = req.params; // Changed from userId to id to match route
+    const { email, role } = req.body;
+
+    // Check if requester is admin
+    if (req.user.role !== 'Admin') {
+      return res.status(403).json({
+        success: false,
+        error: 'Only admins can edit user accounts'
+      });
+    }
+
+    const user = await User.findById(id);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: 'User not found'
+      });
+    }
+
+    // Update fields
+    if (email) user.email = email;
+    if (role) user.role = role;
+    await user.save();
+
+    
+    res.json({
+      success: true,
+      message: 'User updated successfully',
+      data: {
+        _id: user._id,
+        email: user.email,
+        role: user.role,
+        isVerified: user.isVerified
+      }
+    });
+  } catch (error) {
+    console.error('Error updating user:', error);
+    res.status(500).json({
+      success: false,
+      error: 'An error occurred while updating the user'
+    });
+  }
+};

@@ -38,7 +38,19 @@ import {
   CLEAR_COURSE_ERRORS,
   CLEAR_COURSE_SUCCESS,
   SET_COURSE_LOADING,
-  RESET_COURSE_STATE
+  RESET_COURSE_STATE,
+  ADD_COURSE_MODULE_REQUEST,
+  ADD_COURSE_MODULE_SUCCESS,
+  ADD_COURSE_MODULE_FAIL,
+  DELETE_COURSE_MODULE_REQUEST,
+  DELETE_COURSE_MODULE_SUCCESS,
+  DELETE_COURSE_MODULE_FAIL,
+  REORDER_COURSE_MODULES_REQUEST,
+  REORDER_COURSE_MODULES_SUCCESS,
+  REORDER_COURSE_MODULES_FAIL,
+  GET_SINGLE_MODULE_REQUEST,
+  GET_SINGLE_MODULE_SUCCESS,
+  GET_SINGLE_MODULE_FAIL,
 } from '../actions/types.js';
 
 const initialState = {
@@ -48,6 +60,11 @@ const initialState = {
   courseModules: null,
   courseStudents: [],
   searchResults: [],
+  moduleLoading: false,
+  moduleAdded: false,
+  moduleDeleted: false,
+  modulesReordered: false,
+  currentModule: null,
   
   // Pagination and metadata
   currentPage: 1,
@@ -59,7 +76,6 @@ const initialState = {
   loading: false,
   coursesLoading: false,
   courseLoading: false,
-  moduleLoading: false,
   studentLoading: false,
   enrollmentLoading: false,
   announcementLoading: false,
@@ -108,7 +124,6 @@ const courseReducer = (state = initialState, action) => {
         error: action.payload
       };
 
-    // Get Single Course
     case GET_COURSE_REQUEST:
       return {
         ...state,
@@ -116,6 +131,168 @@ const courseReducer = (state = initialState, action) => {
         error: null
       };
     
+      case ADD_COURSE_MODULE_REQUEST:
+      return {
+        ...state,
+        moduleLoading: true,
+        moduleAdded: false,
+        error: null
+      };
+    
+      case ADD_COURSE_MODULE_SUCCESS:
+      // If we have the full course loaded, update its modules
+      const updatedCourseAfterAdd = state.course && 
+        state.course._id === action.payload.courseId
+        ? {
+            ...state.course,
+            modules: [...state.course.modules, action.payload.module]
+          }
+        : state.course;
+
+      // Also update in courses list if present
+      const updatedCoursesAfterAdd = state.courses.map(course =>
+        course._id === action.payload.courseId
+          ? { ...course, modules: [...course.modules, action.payload.module] }
+          : course
+      );
+
+      return {
+        ...state,
+        moduleLoading: false,
+        moduleAdded: true,
+        course: updatedCourseAfterAdd,
+        courses: updatedCoursesAfterAdd,
+        success: action.payload.message,
+        error: null
+      };
+
+
+       case ADD_COURSE_MODULE_FAIL:
+      return {
+        ...state,
+        moduleLoading: false,
+        moduleAdded: false,
+        error: action.payload
+      };
+
+     case DELETE_COURSE_MODULE_REQUEST:
+      return {
+        ...state,
+        moduleLoading: true,
+        moduleDeleted: false,
+        error: null
+      };
+
+        case DELETE_COURSE_MODULE_SUCCESS:
+      // Update course modules by removing the deleted one
+      const updatedCourseAfterDelete = state.course && 
+        state.course._id === action.payload.courseId
+        ? {
+            ...state.course,
+            modules: state.course.modules.filter(
+              (_, index) => index !== action.payload.moduleIndex
+            )
+          }
+        : state.course;
+
+      const updatedCoursesAfterDelete = state.courses.map(course =>
+        course._id === action.payload.courseId
+          ? {
+              ...course,
+              modules: course.modules.filter(
+                (_, index) => index !== action.payload.moduleIndex
+              )
+            }
+          : course
+      );
+
+      return {
+        ...state,
+        moduleLoading: false,
+        moduleDeleted: true,
+        course: updatedCourseAfterDelete,
+        courses: updatedCoursesAfterDelete,
+        success: action.payload.message,
+        error: null
+      };
+
+    
+     case DELETE_COURSE_MODULE_FAIL:
+      return {
+        ...state,
+        moduleLoading: false,
+        moduleDeleted: false,
+        error: action.payload
+      };
+
+      case REORDER_COURSE_MODULES_REQUEST:
+      return {
+        ...state,
+        moduleLoading: true,
+        modulesReordered: false,
+        error: null
+      };
+
+
+     case REORDER_COURSE_MODULES_SUCCESS:
+      // Replace modules with reordered array
+      const updatedCourseAfterReorder = state.course && 
+        state.course._id === action.payload.courseId
+        ? {
+            ...state.course,
+            modules: action.payload.modules
+          }
+        : state.course;
+
+      const updatedCoursesAfterReorder = state.courses.map(course =>
+        course._id === action.payload.courseId
+          ? { ...course, modules: action.payload.modules }
+          : course
+      );
+
+      return {
+        ...state,
+        moduleLoading: false,
+        modulesReordered: true,
+        course: updatedCourseAfterReorder,
+        courses: updatedCoursesAfterReorder,
+        success: action.payload.message,
+        error: null
+      };
+
+    case REORDER_COURSE_MODULES_FAIL:
+      return {
+        ...state,
+        moduleLoading: false,
+        modulesReordered: false,
+        error: action.payload
+      };
+
+    case GET_SINGLE_MODULE_REQUEST:
+      return {
+        ...state,
+        moduleLoading: true,
+        currentModule: null,
+        error: null
+      };
+    
+    case GET_SINGLE_MODULE_SUCCESS:
+      return {
+        ...state,
+        moduleLoading: false,
+        currentModule: action.payload,
+        error: null
+      };
+    
+    case GET_SINGLE_MODULE_FAIL:
+      return {
+        ...state,
+        moduleLoading: false,
+        currentModule: null,
+        error: action.payload
+      };
+    
+
     case GET_COURSE_SUCCESS:
       return {
         ...state,
@@ -331,7 +508,7 @@ const courseReducer = (state = initialState, action) => {
     case UPDATE_COURSE_MODULE_SUCCESS:
       const updatedModules = state.courseModules ? {
         ...state.courseModules,
-        modules: state.courseModules.modules.map((module, index) =>
+         modules: state.courseModules.modules.map((module, index) =>
           index === action.payload.moduleIndex ? action.payload.module : module
         )
       } : null;
@@ -427,6 +604,9 @@ const courseReducer = (state = initialState, action) => {
         studentEnrolled: false,
         studentUnenrolled: false,
         moduleUpdated: false,
+        moduleAdded: false,
+        moduleDeleted: false,
+        modulesReordered: false,
         announcementAdded: false
       };
 

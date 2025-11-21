@@ -4,7 +4,7 @@ module.exports = {
     "./index.html",
     "./src/**/*.{js,jsx,ts,tsx}",
   ],
-  darkMode:  "class",
+  darkMode:  ["class", "class"],
   theme: {
   	extend: {
   		colors: {
@@ -76,7 +76,8 @@ module.exports = {
   		fontFamily: {
   			heading: [
   				'Montserrat',
-  				'sans-serif'
+  				'sans-serif',
+  				'Bai Jamjuree'
   			],
   			sans: [
   				'Inter',

@@ -186,7 +186,6 @@ const updateCourse = async (req, res) => {
       level,
       thumbnail,
       isActive,
-      
       announcements
     } = req.body;
 
@@ -631,6 +630,421 @@ const updateCourseModule = async (req, res) => {
   }
 };
 
+// @desc    Add new module to course
+// @route   POST /api/courses/:id/modules
+// @access  Private (Admin/Instructor)
+const addCourseModule = async (req, res) => {
+  try {
+    const { title, description, resources, assignments } = req.body;
+    //check if the user is an admin or instructor
+    const user = await User.findById(req.user.id);
+    if (!user || (user.role !== 'Admin' && user.role !== 'Instructor')) {
+      return res.status(403).json({
+        success: false,
+        message: 'Unauthorized'
+      });
+    }
+
+    if (!title) {
+      return res.status(400).json({
+        success: false,
+        message: 'Module title is required'
+      });
+    }
+
+    const course = await Course.findById(req.params.id);
+    if (!course) {
+      return res.status(404).json({
+        success: false,
+        message: 'Course not found'
+      });
+    }
+
+    // Create new module object
+    const newModule = {
+      title,
+      description: description || '',
+      resources: resources || [],
+      assignments: assignments || []
+    };
+
+    // Add to modules array
+    course.modules.push(newModule);
+    await course.save();
+
+    // Get the newly added module (last item in array)
+    const addedModule = course.modules[course.modules.length - 1];
+
+    res.status(201).json({
+      success: true,
+      message: 'Module added successfully',
+      data: {
+        module: addedModule,
+        moduleIndex: course.modules.length - 1,
+        totalModules: course.modules.length
+      }
+    });
+
+  } catch (error) {
+    console.error('Add module error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error adding module',
+      error: error.message
+    });
+  }
+};
+
+// @desc    Delete module from course
+// @route   DELETE /api/courses/:id/modules/:moduleIndex
+// @access  Private (Admin/Instructor)
+const deleteCourseModule = async (req, res) => {
+  try {
+    const { moduleIndex } = req.params;
+    const moduleIdx = parseInt(moduleIndex);
+
+    const user = await User.findById(req.user.id);
+    if (!user || (user.role !== 'Admin' && user.role !== 'Instructor')) {
+      return res.status(403).json({
+        success: false,
+        message: 'Unauthorized'
+      });
+    }
+
+    const course = await Course.findById(req.params.id);
+    if (!course) {
+      return res.status(404).json({
+        success: false,
+        message: 'Course not found'
+      });
+    }
+
+    if (!course.modules[moduleIdx]) {
+      return res.status(404).json({
+        success: false,
+        message: 'Module not found'
+      });
+    }
+
+    // Get module title before deletion for response
+    const deletedModuleTitle = course.modules[moduleIdx].title;
+
+    // Remove module from array
+    course.modules.splice(moduleIdx, 1);
+    await course.save();
+
+    // Clean up student data related to this module
+    // Remove completed module tracking
+    await Student.updateMany(
+      { 'enrolledCourses.courseId': course._id },
+      { 
+        $pull: { 
+          'enrolledCourses.$[enrollment].completedModules': moduleIdx 
+        }
+      },
+      { 
+        arrayFilters: [{ 'enrollment.courseId': course._id }] 
+      }
+    );
+
+    // Update module indices in completedModules (decrement all indices > deleted index)
+    await Student.updateMany(
+      { 'enrolledCourses.courseId': course._id },
+      { 
+        $inc: { 
+          'enrolledCourses.$[enrollment].completedModules.$[moduleNum]': -1 
+        }
+      },
+      { 
+        arrayFilters: [
+          { 'enrollment.courseId': course._id },
+          { 'moduleNum': { $gt: moduleIdx } }
+        ]
+      }
+    );
+
+    // Clean up performance scores for this module
+    await Student.updateMany(
+      { 
+        'performanceScores.courseId': course._id,
+        'performanceScores.moduleIndex': moduleIdx
+      },
+      { 
+        $pull: { 
+          performanceScores: { 
+            courseId: course._id, 
+            moduleIndex: moduleIdx 
+          } 
+        }
+      }
+    );
+
+    // Update module indices in performance scores
+    await Student.updateMany(
+      { 
+        'performanceScores.courseId': course._id,
+        'performanceScores.moduleIndex': { $gt: moduleIdx }
+      },
+      { 
+        $inc: { 
+          'performanceScores.$[score].moduleIndex': -1 
+        }
+      },
+      { 
+        arrayFilters: [
+          { 
+            'score.courseId': course._id,
+            'score.moduleIndex': { $gt: moduleIdx }
+          }
+        ]
+      }
+    );
+
+    // Clean up assignments for this module
+    await Student.updateMany(
+      { 
+        'assignments.courseId': course._id,
+        'assignments.moduleIndex': moduleIdx
+      },
+      { 
+        $pull: { 
+          assignments: { 
+            courseId: course._id, 
+            moduleIndex: moduleIdx 
+          } 
+        }
+      }
+    );
+
+    // Update module indices in assignments
+    await Student.updateMany(
+      { 
+        'assignments.courseId': course._id,
+        'assignments.moduleIndex': { $gt: moduleIdx }
+      },
+      { 
+        $inc: { 
+          'assignments.$[assignment].moduleIndex': -1 
+        }
+      },
+      { 
+        arrayFilters: [
+          { 
+            'assignment.courseId': course._id,
+            'assignment.moduleIndex': { $gt: moduleIdx }
+          }
+        ]
+      }
+    );
+
+    res.status(200).json({
+      success: true,
+      message: `Module "${deletedModuleTitle}" deleted successfully`,
+      data: {
+        deletedModuleIndex: moduleIdx,
+        remainingModules: course.modules.length
+      }
+    });
+
+  } catch (error) {
+    console.error('Delete module error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error deleting module',
+      error: error.message
+    });
+  }
+};
+
+// @desc    Reorder course modules
+// @route   PUT /api/courses/:id/modules/reorder
+// @access  Private (Admin/Instructor)
+const reorderCourseModules = async (req, res) => {
+  try {
+    const { newOrder } = req.body;
+    const user = await User.findById(req.user.id);
+    if (!user || (user.role !== 'Admin' && user.role !== 'Instructor')) {
+      return res.status(403).json({
+        success: false,
+        message: 'Unauthorized'
+      });
+    }
+
+    if (!Array.isArray(newOrder)) {
+      return res.status(400).json({
+        success: false,
+        message: 'newOrder must be an array of module indices'
+      });
+    }
+
+    const course = await Course.findById(req.params.id);
+    if (!course) {
+      return res.status(404).json({
+        success: false,
+        message: 'Course not found'
+      });
+    }
+
+    // Validate newOrder array
+    if (newOrder.length !== course.modules.length) {
+      return res.status(400).json({
+        success: false,
+        message: 'newOrder array length must match number of modules'
+      });
+    }
+
+    // Check if all indices are valid
+    const validIndices = newOrder.every(
+      idx => Number.isInteger(idx) && idx >= 0 && idx < course.modules.length
+    );
+
+    if (!validIndices) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid module indices in newOrder array'
+      });
+    }
+
+    // Check for duplicate indices
+    const uniqueIndices = new Set(newOrder);
+    if (uniqueIndices.size !== newOrder.length) {
+      return res.status(400).json({
+        success: false,
+        message: 'newOrder array contains duplicate indices'
+      });
+    }
+
+    // Create mapping of old index to new index
+    const indexMapping = {};
+    newOrder.forEach((oldIndex, newIndex) => {
+      indexMapping[oldIndex] = newIndex;
+    });
+
+    // Reorder modules
+    const reorderedModules = newOrder.map(oldIndex => course.modules[oldIndex]);
+    course.modules = reorderedModules;
+    await course.save();
+
+    // Update student completed modules indices
+    const students = await Student.find({ 
+      'enrolledCourses.courseId': course._id 
+    });
+
+    for (const student of students) {
+      let updated = false;
+
+      student.enrolledCourses.forEach(enrollment => {
+        if (enrollment.courseId.toString() === course._id.toString()) {
+          // Remap completed module indices
+          enrollment.completedModules = enrollment.completedModules.map(
+            oldIdx => indexMapping[oldIdx]
+          ).filter(idx => idx !== undefined);
+          updated = true;
+        }
+      });
+
+      // Update performance scores module indices
+      student.performanceScores.forEach(score => {
+        if (score.courseId.toString() === course._id.toString()) {
+          score.moduleIndex = indexMapping[score.moduleIndex];
+          updated = true;
+        }
+      });
+
+      // Update assignments module indices
+      student.assignments.forEach(assignment => {
+        if (assignment.courseId.toString() === course._id.toString()) {
+          assignment.moduleIndex = indexMapping[assignment.moduleIndex];
+          updated = true;
+        }
+      });
+
+      // Update module completions
+      student.moduleCompletions.forEach(completion => {
+        if (completion.courseId.toString() === course._id.toString()) {
+          completion.moduleIndex = indexMapping[completion.moduleIndex];
+          updated = true;
+        }
+      });
+
+      if (updated) {
+        await student.save();
+      }
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Modules reordered successfully',
+      data: {
+        modules: course.modules,
+        totalModules: course.modules.length
+      }
+    });
+
+  } catch (error) {
+    console.error('Reorder modules error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error reordering modules',
+      error: error.message
+    });
+  }
+};
+
+
+// @desc    Get single module by index
+// @route   GET /api/courses/:id/modules/:moduleIndex
+// @access  Private (Enrolled students/Instructors)
+const getCourseModule = async (req, res) => {
+  try {
+    const { moduleIndex } = req.params;
+    const moduleIdx = parseInt(moduleIndex);
+    const user = await User.findById(req.user.id);
+    if (!user || (user.role !== 'Admin' && user.role !== 'Instructor')) {
+      return res.status(403).json({
+        success: false,
+        message: 'Unauthorized'
+      });
+    }
+
+    const course = await Course.findById(req.params.id).select('modules title code');
+    if (!course) {
+      return res.status(404).json({
+        success: false,
+        message: 'Course not found'
+      });
+    }
+
+    if (!course.modules[moduleIdx]) {
+      return res.status(404).json({
+        success: false,
+        message: 'Module not found'
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: {
+        courseId: course._id,
+        courseTitle: course.title,
+        courseCode: course.code,
+        moduleIndex: moduleIdx,
+        module: course.modules[moduleIdx],
+        totalModules: course.modules.length
+      }
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching module',
+      error: error.message
+    });
+  }
+};
+
+
+
 // @desc    Advanced course search
 // @route   GET /api/courses/search/advanced
 // @access  Public
@@ -740,6 +1154,8 @@ const advancedCourseSearch = async (req, res) => {
   }
 };
 
+
+
 module.exports = {
   createCourse,
   getCourses,
@@ -752,5 +1168,9 @@ module.exports = {
   addCourseAnnouncement,
   getCourseModules,
   updateCourseModule,
-  advancedCourseSearch
+  advancedCourseSearch,
+   addCourseModule,
+  deleteCourseModule,
+  reorderCourseModules,
+  getCourseModule
 };

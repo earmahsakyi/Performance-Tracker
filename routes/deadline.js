@@ -12,6 +12,7 @@ router.get('/student/:studentId', auth, deadlineController.getDeadlinesForStuden
 
 // @route   GET /api/deadlines/instructor
 router.get('/instructor', auth, deadlineController.getDeadlinesByCreator);
+router.get('/course/:courseId', auth, deadlineController.getDeadlinesByCourse);
 
 // @route   GET /api/deadlines/all
 router.get('/all', auth, deadlineController.getAllDeadlines);

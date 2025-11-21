@@ -1,4 +1,3 @@
-import { set } from 'zod';
 import * as types from './types';
 import axios from 'axios';
 
@@ -24,7 +23,7 @@ export const getCategories = () => async (dispatch) => {
   try {
     setAuthToken();
     dispatch({ type: types.ADMIN_FORUM_LOADING });
-    const res = await api.get('/admin/forum/categories');
+    const res = await axios.get('/api/admin/forum/categories');
     dispatch({
       type: types.GET_CATEGORIES_SUCCESS,
       payload: res.data.data
@@ -41,14 +40,14 @@ export const createCategory = (formData) => async (dispatch) => {
   try {
     setAuthToken();
     dispatch({ type: types.ADMIN_FORUM_LOADING });
-    const res = await api.post('/admin/forum/categories', formData);
+    const res = await axios.post('/api/admin/forum/categories', formData);
     dispatch({
       type: types.CREATE_CATEGORY_SUCCESS,
       payload: res.data.data
     });
     return { success: true };
   } catch (err) {
-    const error = err.response?.data?.message || 'Failed to create category';
+    const error = err.response?.data?.errors[0].message || 'Failed to create category';
     dispatch({
       type: types.ADMIN_FORUM_ERROR,
       payload: error
@@ -61,7 +60,7 @@ export const updateCategory = (categoryId, formData) => async (dispatch) => {
   try {
     setAuthToken();
     dispatch({ type: types.ADMIN_FORUM_LOADING });
-    const res = await api.put(`/admin/forum/categories/${categoryId}`, formData);
+    const res = await axios.put(`/api/admin/forum/categories/${categoryId}`, formData);
     dispatch({
       type: types.UPDATE_CATEGORY_SUCCESS,
       payload: res.data.data
@@ -81,7 +80,7 @@ export const deleteCategory = (categoryId) => async (dispatch) => {
   try {
     setAuthToken();
     dispatch({ type: types.ADMIN_FORUM_LOADING });
-    await api.delete(`/admin/forum/categories/${categoryId}`);
+    await axios.delete(`/api/admin/forum/categories/${categoryId}`);
     dispatch({
       type: types.DELETE_CATEGORY_SUCCESS,
       payload: categoryId
@@ -102,7 +101,7 @@ export const togglePinPost = (postId) => async (dispatch) => {
   try {
     setAuthToken();
     dispatch({ type: types.ADMIN_FORUM_LOADING });
-    const res = await api.put(`/admin/forum/posts/${postId}/pin`);
+    const res = await axios.put(`/api/admin/forum/posts/${postId}/pin`);
     dispatch({
       type: types.TOGGLE_PIN_POST_SUCCESS,
       payload: res.data.data
@@ -122,7 +121,7 @@ export const toggleLockPost = (postId) => async (dispatch) => {
   try {
     setAuthToken();
     dispatch({ type: types.ADMIN_FORUM_LOADING });
-    const res = await api.put(`/admin/forum/posts/${postId}/lock`);
+    const res = await axios.put(`/api/admin/forum/posts/${postId}/lock`);
     dispatch({
       type: types.TOGGLE_LOCK_POST_SUCCESS,
       payload: res.data.data
@@ -142,7 +141,7 @@ export const deletePost = (postId) => async (dispatch) => {
   try {
     setAuthToken();
     dispatch({ type: types.ADMIN_FORUM_LOADING });
-    await api.delete(`/admin/forum/posts/${postId}`);
+    await axios.delete(`/api/admin/forum/posts/${postId}`);
     dispatch({
       type: types.DELETE_POST_SUCCESS,
       payload: postId
@@ -163,7 +162,7 @@ export const getForumAnalytics = (period = '30d') => async (dispatch) => {
   try {
     setAuthToken();
     dispatch({ type: types.ADMIN_FORUM_LOADING });
-    const res = await api.get(`/admin/forum/analytics?period=${period}`);
+    const res = await axios.get(`/api/admin/forum/analytics?period=${period}`);
     dispatch({
       type: types.GET_ANALYTICS_SUCCESS,
       payload: res.data.data

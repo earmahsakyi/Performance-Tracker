@@ -17,19 +17,6 @@ import {
 
 import axios from 'axios'
 
-// Helper to get auth token (if not already globally available or imported)
-const getTokenConfig = () => {
-  const token = localStorage.getItem('token');
-  const config = {
-    headers: {
-      'Content-Type': 'application/json'
-    }
-  };
-  if (token) {
-    config.headers['x-auth-token'] = token;
-  }
-  return config;
-};
 
 // Get current admins's profile
 export const getCurrentAdminProfile = () => async (dispatch) => {
@@ -46,7 +33,7 @@ export const getCurrentAdminProfile = () => async (dispatch) => {
         'x-auth-token': token,
         'Content-Type': 'application/json'
       },
-      timeout: 15000 // Add a 15-second timeout
+      timeout: 15000 
     };
 
     const res = await axios.get('/api/admin/profile', config);
@@ -206,10 +193,7 @@ export const searchAdmins = (criteria) => async (dispatch) => {
       type: SEARCH_ADMINS_FAIL,
       payload: errorMessage
     });
-    
-    // Optionally, re-throw if components need to react to the error object itself,
-    // but for resetting loading state, dispatching _FAIL is key.
-    // throw err; // Commented out as dispatching FAIL is usually sufficient for UI.
+  
   }
 };
 //get AdminbyID

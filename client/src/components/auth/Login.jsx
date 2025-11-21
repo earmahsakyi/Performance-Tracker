@@ -67,7 +67,7 @@ const Login = () => {
   return (
     <main className="container flex min-h-[80vh] items-center justify-center py-12">
       <section className="w-full max-w-md rounded-xl border bg-card p-8 shadow">
-        <h1 className=" text-center text-2xl font-bold">Login to Trackademy</h1>
+        <h1 className=" text-center text-2xl font-bold font-heading">Login to Trackademy</h1>
         <p className="mt-1 text-center text-sm text-muted-foreground">
           Forgot password? <a href="/forgot-password" className="underline">Reset it</a>
         </p>

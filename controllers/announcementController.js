@@ -35,7 +35,7 @@ const createAnnouncement = async (req, res) => {
 // @access  Public (Students + Instructors)
 const getAnnouncements = async (req, res) => {
   try {
-    const { courseId } = req.query; // optional filter by course
+    const { courseId } = req.query;
 
     const filter = {};
     if (courseId) filter.course = courseId;

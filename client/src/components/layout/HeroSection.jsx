@@ -89,7 +89,7 @@ export const HeroSection = () => {
               <img
                 src={heroStudents}
                 alt="Students collaborating and learning on digital platforms"
-                className="w-full h-auto rounded-3xl shadow-hero"
+                className="w-full h-auto rounded-3xl shadow-hero hover:scale-105 transition-all duration-200"
               />
             </div>
             {/* Floating elements */}

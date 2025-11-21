@@ -1,8 +1,8 @@
 import { motion } from "framer-motion";
-import { Bell, Search, ChevronDown, User, Settings, LogOut } from "lucide-react";
+import { Bell, Search, ChevronDown, User, Settings, LogOut, Edit } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback,AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,8 +10,37 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useEffect,useState } from "react";
+import {logout} from '../../../actions/authAction';
+import {getCurrentAdminProfile } from "../../../actions/adminAction";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from 'react-router-dom';
+import EditAdminProfileModal from "@/components/auth/EditAdminProfileModal";
 
 export function Navbar() {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const {profile} = useSelector((state) => state.admin)
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+ 
+
+  useEffect(() => {
+    dispatch(getCurrentAdminProfile());
+  }, [dispatch])
+
+  const handleLogout = () => {
+    dispatch(logout());
+    navigate('/login');
+
+  }
+  const handleProfileClick = () => {
+    setIsProfileModalOpen(true);
+  };
+
+  const handleCloseProfileModal = () => {
+    setIsProfileModalOpen(false);
+  };
+
   return (
     <motion.header
       initial={{ y: -20, opacity: 0 }}
@@ -49,37 +78,42 @@ export function Navbar() {
           <DropdownMenuTrigger asChild>
             <Button
               variant="ghost"
-              className="flex items-center space-x-2 hover:bg-primary"
+              className="flex items-center space-x-2 group-hover:bg-primary"
             >
               <Avatar className="h-8 w-8">
+                <AvatarImage src={profile?.photo} />
                 <AvatarFallback className="bg-gradient-primary text-white">
-                  JS
+                 <img 
+                        src={`https://ui-avatars.com/api/?name=${encodeURIComponent(profile?.name || profile?.email)}`}
+                        alt="Avatar"
+                        className="w-full h-full object-cover"
+                      />
                 </AvatarFallback>
               </Avatar>
               <div className="hidden md:block text-left">
-                <p className="text-sm font-medium">John Smith</p>
-                <p className="text-xs text-muted-foreground">Administrator</p>
+                <p className="text-sm font-medium group-hover:text-white">{profile?.fullName}</p>
+                <p className="text-xs text-muted-foreground  group-hover:text-white">Administrator</p>
               </div>
               <ChevronDown className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56 bg-popover border border-border shadow-hover">
-            <DropdownMenuItem className="flex items-center space-x-2 cursor-pointer hover:bg-muted">
+            <DropdownMenuItem className="flex items-center space-x-2 cursor-pointer hover:bg-muted" onClick={handleProfileClick}>
               <User className="h-4 w-4" />
               <span>Profile</span>
             </DropdownMenuItem>
-            <DropdownMenuItem className="flex items-center space-x-2 cursor-pointer hover:bg-muted">
-              <Settings className="h-4 w-4" />
-              <span>Settings</span>
-            </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="flex items-center space-x-2 cursor-pointer hover:bg-muted text-destructive">
-              <LogOut className="h-4 w-4" />
+            <DropdownMenuItem onClick={handleLogout} className="flex items-center space-x-2 cursor-pointer hover:bg-muted text-destructive">
+              <LogOut className="h-4 w-4"  />
               <span>Sign out</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+      <EditAdminProfileModal 
+      isOpen={isProfileModalOpen}
+        onClose={handleCloseProfileModal}
+        />
     </motion.header>
   );
 }

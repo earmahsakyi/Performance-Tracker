@@ -13,12 +13,15 @@ import {
   DELETE_DEADLINE_REQUEST,
   DELETE_DEADLINE_SUCCESS,
   DELETE_DEADLINE_FAIL,
+  FETCH_DEADLINE_BY_COURSE_ID_FAIL,
+  FETCH_DEADLINE_BY_COURSE_ID_SUCCESS,
+  FETCH_DEADLINE_BY_COURSE_ID_REQUEST
 } from './types.js';
 
 
 const getConfig = () => ({
   headers: {
-    'x-auth-token': localStorage.getItem('token'), // Adjust based on your auth setup
+    'x-auth-token': localStorage.getItem('token'), 
   },
 });
 
@@ -47,21 +50,29 @@ export const fetchDeadlines = (studentId) => async (dispatch) => {
 export const createDeadline = (deadlineData) => async (dispatch) => {
   try {
     dispatch({ type: CREATE_DEADLINE_REQUEST });
-
+    console.log(deadlineData)
     const { data } = await axios.post('/api/deadlines/create', deadlineData, getConfig());
 
     dispatch({
       type: CREATE_DEADLINE_SUCCESS,
       payload: data,
     });
+    return {success:true, data}
   } catch (error) {
     dispatch({
       type: CREATE_DEADLINE_FAIL,
       payload: error.response && error.response.data.message
         ? error.response.data.message
         : error.message,
+      
     });
+    const errorMessage = error.response && error.response.data.message
+    ? error.response.data.message
+    : error.message;
+    console.log(errorMessage)
+    return {success:false, error:errorMessage}
   }
+  
 };
 
 // Update deadline
@@ -103,8 +114,31 @@ export const deleteDeadline = (deadlineId) => async (dispatch) => {
         ? error.response.data.message
         : error.message,
     });
+  };
+}
+
+//get deadline by course id
+export const fetchDeadlineByCourseId = (courseId) => async (dispatch) => {
+  try {
+    dispatch({ type: FETCH_DEADLINE_BY_COURSE_ID_REQUEST });
+    const { data } = await axios.get(`/api/deadlines/course/${courseId}`, getConfig());
+
+    dispatch({
+      type: FETCH_DEADLINE_BY_COURSE_ID_SUCCESS,
+      payload: data,
+    });
+    return {success:true, data}
+  } catch (error) {
+    dispatch({
+      type: FETCH_DEADLINE_BY_COURSE_ID_FAIL,
+      payload: error.response && error.response.data.message
+        ? error.response.data.message
+        : error.message,
+    });
   }
 };
+
+
 
 // Additional actions like fetch for instructor or all can be added similarly
 // e.g., fetchInstructorDeadlines, fetchAllDeadlines

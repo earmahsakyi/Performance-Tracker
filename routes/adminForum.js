@@ -17,14 +17,22 @@ const categoryValidation = [
     .withMessage('Description must be between 10 and 200 characters'),
   body('color')
     .optional()
-    .matches(/^bg-\w+-\d+$/)
+    .matches(/^bg-[\w]+-\d+$/) 
     .withMessage('Invalid color format'),
   body('icon')
     .optional()
     .isLength({ min: 1, max: 50 })
-    .withMessage('Invalid icon name')
+    .withMessage('Invalid icon name'),
+  // Add these to be safe
+  body('requiresModeration')
+    .optional()
+    .isBoolean()
+    .withMessage('requiresModeration must be a boolean'),
+  body('allowStudentPosts')
+    .optional()
+    .isBoolean()
+    .withMessage('allowStudentPosts must be a boolean')
 ];
-
 // Admin-only routes
 router.use(auth);
 
@@ -32,11 +40,13 @@ router.use(auth);
 router.post('/categories', categoryValidation, validate, adminForumController.createCategory);
 router.put('/categories/:categoryId', categoryValidation, validate, adminForumController.updateCategory);
 router.delete('/categories/:categoryId', adminForumController.deleteCategory);
+router.get('/categories', adminForumController.getCategories);
 
 // Post moderation
 router.put('/posts/:postId/pin', adminForumController.togglePinPost);
 router.put('/posts/:postId/lock', adminForumController.toggleLockPost);
 router.delete('/posts/:postId', adminForumController.deletePost);
+
 
 // Comment moderation
 // router.delete('/comments/:commentId', adminForumController.);
