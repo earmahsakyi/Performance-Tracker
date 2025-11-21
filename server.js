@@ -61,7 +61,7 @@ app.use(getClientIp);
 app.use('/api/', apiLimiter);
 
 // Root route
-app.get('/', (req, res) => res.json({ msg: 'Welcome to Local Service API...' }));
+app.get('/api/', (req, res) => res.json({ msg: 'Welcome to Local Service API...' }));
 
 const server = http.createServer(app);
 
