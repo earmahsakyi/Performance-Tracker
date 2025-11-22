@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Play } from "lucide-react";
 import heroStudents from "../../assets/hero2.jpg";
-import {Link} from "react-router-dom";
+import { TypeAnimation } from "react-type-animation";
 import { useNavigate } from "react-router-dom";
 
 export const HeroSection = () => {
@@ -25,8 +25,23 @@ export const HeroSection = () => {
             </h1>
             
             <p className="text-xl md:text-2xl text-white/90 mb-8 leading-relaxed">
-              Master MERN and UI/UX with real projects and track your progress. 
-              Join thousands of students building their dream careers.
+              <TypeAnimation
+                sequence={[
+                  "Learn MERN from beginner to advanced",
+                  2000,
+                  "Design beautiful UIs with confidence",
+                  2000,
+                  "Work on real projects and grow fast",
+                  2000,
+                  "Track your learning journey in one place",
+                  2000,
+                  "Turn your skills into real opportunities",
+                  2000,
+                ]}
+                wrapper="span"
+                speed={50}
+                repeat={Infinity}
+              />
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
