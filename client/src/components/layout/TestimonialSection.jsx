@@ -1,5 +1,7 @@
 import { Star } from "lucide-react";
 import myPic from '../../assets/WhatsApp Image 2025-05-09 at 13.48.02_611f26e5.jpg'
+import profile from '../../assets/Profile.jpg'
+import sharon from '../../assets/studentHero.jpg'
 
 const testimonials = [
   {
@@ -10,17 +12,17 @@ const testimonials = [
     rating: 5
   },
   {
-    name: "Marcus Johnson",
+    name: "Baah Badu",
     role: "Full-Stack Developer",
     content: "Best bootcamp experience ever! The curriculum is comprehensive and the community is incredibly supportive. I went from zero to hero in 6 months.",
-    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=64&h=64&fit=crop&crop=face",
+    avatar: profile,
     rating: 5
   },
   {
-    name: "Emily Rodriguez",
+    name: "Sharon Boadu",
     role: "UI/UX Designer at Airbnb",
     content: "The UI/UX track exceeded my expectations. Real client projects and expert feedback helped me build an amazing portfolio that got me hired!",
-    avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=64&h=64&fit=crop&crop=face",
+    avatar:sharon,
     rating: 5
   }
 ];
