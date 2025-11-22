@@ -128,7 +128,7 @@ const ResetPassword = () => {
           {/* Back Button */}
           <motion.button 
             onClick={() => navigate('/forgot-password')}
-            className="flex items-center mb-6 text-white bg-black rounded-lg hover:text-white transition-colors group"
+            className="flex items-center mb-6 text-white bg-primary hover:bg-primary-light p-3 rounded-lg hover:text-white transition-colors group"
             whileHover={{ x: -5 }}
             whileTap={{ scale: 0.95 }}
           >
