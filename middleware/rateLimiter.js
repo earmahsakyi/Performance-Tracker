@@ -4,13 +4,13 @@ const rateLimit = require('express-rate-limit');
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100, // Limit each IP to 100 requests per windowMs
-  message: 'Too many requests from this IP, please try again later.',
+  message: 'Too many requests, please try again later.',
   standardHeaders: true,
   legacyHeaders: false,
   handler: (req, res) => {
     res.status(429).json({
       success: false,
-      msg: 'Too many requests from this IP, please try again later.',
+      msg: 'Too many requests, please try again later.',
       retryAfter: Math.ceil(req.rateLimit.resetTime / 1000)
     });
   }
@@ -20,14 +20,14 @@ const apiLimiter = rateLimit({
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 5, // Limit each IP to 5 login attempts per windowMs
-  message: 'Too many login attempts from this IP, please try again after 15 minutes.',
+  message: 'Too many login attempts, please try again after 15 minutes.',
   standardHeaders: true,
   legacyHeaders: false,
   skipSuccessfulRequests: true, // Don't count successful requests
   handler: (req, res) => {
     res.status(429).json({
       success: false,
-      msg: 'Too many login attempts from this IP. Please try again after 15 minutes.',
+      msg: 'Too many login attempts. Please try again after 15 minutes.',
       retryAfter: Math.ceil(req.rateLimit.resetTime / 1000)
     });
   }
