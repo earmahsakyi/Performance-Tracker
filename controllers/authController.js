@@ -1,5 +1,7 @@
 const bcrypt = require('bcryptjs');
 const User = require('../models/User');
+const Student = require('../models/Student');
+const Admin = require('../models/Admin');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 // const config = require('../config/default.json');
@@ -643,13 +645,39 @@ exports.deleteUser = async (req, res) => {
       });
     }
 
-    
+    // Delete related records FIRST
+    if (user.role === 'Student') {
+      await Student.deleteOne({ user: id });
+    } else if (user.role === 'Admin' || user.role === 'Instructor') {
+      await Admin.deleteOne({ user: id });
+    }
+
+    // Then delete the user
     await User.findByIdAndDelete(id);
+
+    // Send email (non-blocking, errors won't affect response)
+    sendEmail({
+      to: user.email,
+      subject: 'Account Deleted',
+      html: `
+        <div style="font-family: Arial, sans-serif; background-color: #f9fafc; padding: 20px; border-radius: 8px; max-width: 600px; margin: auto; border: 1px solid #e5e7eb;">
+          <h2 style="color: #007AFF; text-align: center; margin-bottom: 10px;">Trackademy</h2>
+          <p style="font-size: 16px; color: #333;">Hello,</p>
+          <p style="font-size: 16px; color: #333;">
+            Your account has been deleted. If you have any questions or concerns, please contact our support team.
+          </p>
+          <hr style="margin: 20px 0; border: none; border-top: 1px solid #e5e7eb;" />
+          <p style="font-size: 12px; color: #999; text-align: center;">
+            &copy; ${new Date().getFullYear()} Trackademy. All rights reserved.
+          </p>
+        </div>
+      `
+    }).catch(err => console.error('Failed to send deletion email:', err));
 
     res.json({
       success: true,
       message: 'User deleted successfully',
-      id:id
+      id: id
     });
   } catch (error) {
     console.error('Error deleting user:', error);
