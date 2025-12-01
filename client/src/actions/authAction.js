@@ -419,6 +419,7 @@ export  const logout = () => async (dispatch) => {
   localStorage.removeItem('token');
   localStorage.removeItem('role');
   localStorage.removeItem('email');
+  localStorage.removeItem('studentId');
   
  
   dispatch({type: LOGOUT})
