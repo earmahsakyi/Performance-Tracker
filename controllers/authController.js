@@ -8,6 +8,12 @@ const crypto = require('crypto');
 const { validationResult } =require('express-validator');
 const sendEmail = require('../utils/sendEmail')
 
+// const setNoCacheHeaders = (res) => {
+//   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+//   res.setHeader('Pragma', 'no-cache');
+//   res.setHeader('Expires', '0');
+// };
+
 
 //@route GET api/auth
 // desc Get logged in user
