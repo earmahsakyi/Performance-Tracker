@@ -17,11 +17,6 @@ It is designed both as:
 
 <img width="1920" height="1080" alt="course lib" src="https://github.com/user-attachments/assets/9b6fc653-9239-44a6-8cbc-4dcf1e92f5ed" />
 
-## Course Library
-
-<img width="1920" height="1080" alt="course lib" src="https://github.com/user-attachments/assets/7383c825-c485-45ef-802f-30c50015edec" />
-
-
 ## student Groups
 
 <img width="1920" height="1080" alt="study groups" src="https://github.com/user-attachments/assets/cf1574c8-5802-4138-8958-c5935a01654e" />
