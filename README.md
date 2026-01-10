@@ -32,7 +32,7 @@ It is designed both as:
 
 ---
 ## 🌐 Project Overview
-
+```
 Trackademy’s core mission is to:
 -Teach HTML, CSS, JavaScript, MERN, and UI/UX using real projects
 -Help students track learning progress
@@ -43,17 +43,21 @@ Trackademy’s core mission is to:
 -A student-facing learning dashboard
 -A secure admin/instructor panel
 -A real-time collaboration & messaging system
-
+```
 ---
 ## 🧱 Tech Stack
+
 ## Frontend
+```
 -React (Vite)
 -Tailwind CSS
 -Framer Motion
 -TypeAnimation
 -Socket.io Client
+```
 
 ## Backend
+```
 -Node.js
 -Express
 -MongoDB + Mongoose
@@ -61,22 +65,27 @@ Trackademy’s core mission is to:
 -bcrypt (password hashing)
 -Real-Time
 -Socket.io – group chat, typing indicators, online presence
+```
 
 ## Security
+```
 -Helmet – secure HTTP headers
 -express-rate-limit – API abuse protection
 -JWT-based auth
 -Role-based access control (Admin / Student)
+```
 
 ## Cloud & Deployment
+```
 -Railway – backend & full-stack deployment
 -AWS S3 – file uploads (admin/student assets)
 -Environment-based configuration
+```
 
 ---
 🗂️ Core Features
 ## Student Features
-
+```
 -Course enrollment
 -Structured learning modules
 -Progress tracking
@@ -85,18 +94,21 @@ Trackademy’s core mission is to:
 -Real-time typing indicators
 -Announcements & deadlines
 -Certificates (planned / implemented)
+```
 
 ## Admin / Instructor Features
-
+```
 -Create & manage courses
 -Publish lessons and modules
 -Manage students
 -Post announcements & deadlines
 -Moderate forums & discussions
 -Track engagement and activity
+```
 
 ---
 ##  Real-Time Group Chat
+```
 -Trackademy includes advanced group chat features:
 -Secure Socket.io authentication
 -Group-based chat rooms
@@ -105,8 +117,10 @@ Trackademy’s core mission is to:
 -Mentions (@user)
 -Read receipts
 -Online/offline presence tracking
+```
 
 ## Authentication & Security
+```
 -JWT authentication (HTTP & Socket.io)
 -Password hashing with bcrypt
 -Rate-limiting on API routes
@@ -114,6 +128,7 @@ Trackademy’s core mission is to:
 -Helmet CSP configuration
 -Secure environment variables
 -Account protection against brute-force attacks
+```
 
 ---
 ## 📁 Environment Variables
