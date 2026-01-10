@@ -137,17 +137,21 @@ AWS_S3_BUCKET=your_bucket_name
 npm run dev 
 
 ## Deployment
+```
 -Deployed using Railway
 -Frontend served via Express static build
 -Environment variables managed via Railway dashboard
 -MongoDB Atlas for database hosting
+```
 
 ## Future Enhancements
+```
 -Video lesson integration
 -Assignment submissions
 -Automated grading
 -Instructor analytics dashboard
 -Payment & subscription system
+```
 
 ## 📄 License
 
