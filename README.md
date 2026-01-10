@@ -119,19 +119,17 @@ Trackademy’s core mission is to:
 ## 📁 Environment Variables
 
 Create a .env file in the backend root:
+```env
 PORT=5000
-MONGO_URI=your_mongodb_connection_string
+DATABASE_URI=your_mongodb_connection_string
 JWT_SECRET=your_jwt_secret
-
-# Email (Resend)
-RESEND_API_KEY=your_resend_api_key
-EMAIL_FROM=noreply@trackademy.com
-
-# AWS S3
+RESEND_API_KEY=your resend api key
+EMAIL_FROM=noreply@domain
 AWS_ACCESS_KEY_ID=your_aws_key
 AWS_SECRET_ACCESS_KEY=your_aws_secret
 AWS_REGION=your_region
 AWS_S3_BUCKET=your_bucket_name
+```
 
 ---
 ## Running the Project Locally
